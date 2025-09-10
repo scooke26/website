@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome — Idea Spaghetti</title>
+  <meta name="description" content="Splash screen" />
+
+  <!-- Preload artwork (optional) -->
+  <link rel="preload" as="image" href="assets/welcome.png" />
+  <link rel="preload" as="image" href="assets/background4.png" />
+
+  <style>
+    :root{
+      --bg:#000;                 /* base color under everything */
+      --bgImageOpacity: 0.35;    /* 0..1 transparency for background image */
+      --pad: clamp(12px, 3vw, 36px);
+    }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      display: grid;
+      place-items: center; /* center content */
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: #fff;
+    }
+
+    /* Full-screen splash wrapper */
+    .splash {
+      position: relative;
+      min-height: 100svh;
+      width: 100%;
+      display: grid;
+      place-items: center;   /* keep centered on all screens */
+      isolation: isolate;    /* keeps layers clean */
+    }
+
+    /* Background image layer (semi-transparent) */
+    .splash::before{
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url("assets/background4.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: var(--bgImageOpacity);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Center artwork (clickable later) */
+    .splash__link { display:inline-block; outline: none; border-radius: 16px; z-index: 1; }
+    .splash__img {
+      /* ~20% larger max than original (620px → 744px), still capped by viewport */
+      width: min(82vw, 744px);
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 20px 30px rgba(255,255,255,.09));
+      animation: fadeIn .9s ease-out both;
+    }
+
+    /* Bottom bar (full-width) */
+    .splash__blurb{
+      position: fixed;
+      left: max(var(--pad), env(safe-area-inset-left));
+      right: max(var(--pad), env(safe-area-inset-right));
+      bottom: max(var(--pad), env(safe-area-inset-bottom));
+      z-index: 2;
+
+      max-width: none;
+      padding: 0;
+      background: transparent;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      border-radius: 0;
+      box-shadow: none;
+      animation: fadeIn .7s ease-out .1s both;
+    }
+
+    /* Title row (brand) */
+    .splash__title{
+      margin: 0 0 .35rem 0;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: clamp(1.05rem, 2.6vw, 1.35rem);
+      line-height: 1.1;
+    }
+
+    .splash__text{
+      margin: 0;
+      font-size: clamp(.85rem, 1.8vw, .98rem);
+      line-height: 1.35;
+      color: rgba(255,255,255,.9);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); filter: blur(6px); }
+      to   { opacity: 1; transform: none; filter: none; }
+    }
+
+    .splash__link:focus-visible {
+      box-shadow: 0 0 0 3px rgba(255,255,255,.85), 0 0 0 6px rgba(255,255,255,.25);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .splash__img, .splash__blurb { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="splash">
+    <!-- Center mark (set href when you want it to navigate somewhere) -->
+    <a class="splash__link" href="#" aria-label="Enter site">
+      <img
+        class="splash__img"
+        src="assets/welcome.png"
+        alt="Spray-painted monogram with drips"
+        width="1000" height="1000"
+        loading="eager" decoding="async"
+      />
+    </a>
+
+    <!-- Bottom bar -->
+    <section class="splash__blurb" aria-label="Intro">
+      <h1 class="splash__title">Idea Spaghetti</h1>
+      <p class="splash__text">
+        A digital project lab for building, learning, and testing. Ideas travel from exploratory chaos to working prototypes.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    // Set a target when you're ready to make the splash clickable, e.g. '/home'
+    const TARGET_URL = null;
+    const link = document.querySelector('.splash__link');
+    if (TARGET_URL) {
+      link.setAttribute('href', TARGET_URL);
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          window.location.assign(TARGET_URL);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
