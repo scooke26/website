@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head id="head">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Welcome — Idea Spaghetti</title>
   <meta name="description" content="Splash screen" />
 
-  <!-- Preload artwork (optional) -->
-  <link rel="preload" as="image" href="welcome.png" />
-  <link rel="preload" as="image" href="background4.png" />
+  <!-- #preloads -->
+  <link id="preload-hero" rel="preload" as="image" href="welcome.png" />
+  <link id="preload-bg"   rel="preload" as="image" href="background4.png" />
 
-  <style>
+  <!-- #styles -->
+  <style id="styles">
     :root{
       --bg:#000;                 /* base color under everything */
       --bgImageOpacity: 0.35;    /* 0..1 transparency for background image */
@@ -27,7 +28,7 @@
       color: #fff;
     }
 
-    /* Full-screen splash wrapper */
+    /* Full-screen splash wrapper (#splash) */
     .splash {
       position: relative;
       min-height: 100svh;
@@ -60,6 +61,43 @@
       display: block;
       filter: drop-shadow(0 20px 30px rgba(255,255,255,.09));
       animation: fadeIn .9s ease-out both;
+    }
+
+    /* --- Hover/tap menu around the image (#menu) --- */
+    .splash__media { position: relative; display: inline-block; z-index: 2; } /* #media */
+
+    /* overlay centered on top of the image */
+    .splash__menu{
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+      gap: clamp(8px, 2vw, 16px); padding: clamp(8px, 2vw, 16px);
+      background: rgba(0,0,0,.35); border-radius: 20px;
+      opacity: 0; pointer-events: none; transform: translateY(4px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    /* show on hover, keyboard focus, or when JS toggles .open (mobile) */
+    .splash__media:hover .splash__menu,
+    .splash__media:focus-within .splash__menu,
+    .splash__media.open .splash__menu{
+      opacity: 1; pointer-events: auto; transform: none;
+    }
+
+    .splash__btn{
+      padding: .6rem .9rem;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px;
+      color: #fff; text-decoration: none; font-weight: 700; letter-spacing: .04em;
+      backdrop-filter: blur(4px);
+      background: rgba(255,255,255,.08);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .splash__btn:hover,
+    .splash__btn:focus-visible{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.14);
+      border-color: rgba(255,255,255,.6);
+      outline: none;
     }
 
     /* Bottom bar (full-width) */
@@ -111,41 +149,85 @@
     }
   </style>
 </head>
-<body>
-  <main class="splash">
-    <!-- Center mark (set href when you want it to navigate somewhere) -->
-    <a class="splash__link" href="#" aria-label="Enter site">
-      <img
-        class="splash__img"
-        src="welcome.png"
-        alt="Spray-painted monogram with drips"
-        width="1000" height="1000"
-        loading="eager" decoding="async"
-      />
-    </a>
+<body id="body">
+  <main id="splash" class="splash" aria-label="Splash">
+    <!-- #media: image + overlay menu -->
+    <div id="media" class="splash__media">
+      <a id="enterLink" class="splash__link" href="#" aria-label="Enter site">
+        <img
+          id="heroImg"
+          class="splash__img"
+          src="welcome.png"
+          alt="Spray-painted monogram with drips"
+          width="1000" height="1000"
+          loading="eager" decoding="async"
+        />
+      </a>
 
-    <!-- Bottom bar -->
-    <section class="splash__blurb" aria-label="Intro">
-      <h1 class="splash__title">Idea Spaghetti</h1>
-      <p class="splash__text">
+      <!-- #menu: hover/tap buttons -->
+      <nav id="menu" class="splash__menu" aria-label="Quick links">
+        <a id="btnHome"     class="splash__btn" href="/home">Home</a>
+        <a id="btnProjects" class="splash__btn" href="/projects">Projects</a>
+        <a id="btnNotes"    class="splash__btn" href="/notes">Notes</a>
+        <a id="btnLab"      class="splash__btn" href="/lab">Lab</a>
+        <a id="btnAbout"    class="splash__btn" href="/about">About</a>
+      </nav>
+    </div>
+
+    <!-- #blurb -->
+    <section id="blurb" class="splash__blurb" aria-label="Intro">
+      <h1 id="title" class="splash__title">Idea Spaghetti</h1>
+      <p id="tagline" class="splash__text">
         A digital project lab for building, learning, and testing. Ideas travel from exploratory chaos to working prototypes.
       </p>
     </section>
   </main>
 
-  <script>
-    // Set a target when you're ready to make the splash clickable, e.g. '/home'
+  <!-- #script-interactions -->
+  <script id="script-interactions">
+    // Optional: set a target to make the central image link somewhere (e.g. '/home')
     const TARGET_URL = null;
-    const link = document.querySelector('.splash__link');
-    if (TARGET_URL) {
-      link.setAttribute('href', TARGET_URL);
-      link.addEventListener('keydown', (e) => {
+    const linkEl = document.querySelector('#enterLink');
+    if (TARGET_URL && linkEl) {
+      linkEl.setAttribute('href', TARGET_URL);
+      linkEl.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           window.location.assign(TARGET_URL);
         }
       });
     }
+
+    // Enable "tap to open menu" on touch devices (no hover)
+    (function(){
+      const media = document.querySelector('#media');
+      const link  = document.querySelector('#enterLink');
+      if (!media || !link) return;
+
+      const noHover = window.matchMedia('(hover: none)').matches;
+      if (noHover) {
+        let opened = false;
+
+        link.addEventListener('click', function(e){
+          if (!opened) {
+            e.preventDefault();
+            media.classList.add('open');
+            opened = true;
+
+            // Close menu when tapping outside
+            const onDocClick = (evt) => {
+              if (!media.contains(evt.target)) {
+                media.classList.remove('open');
+                opened = false;
+                document.removeEventListener('click', onDocClick);
+              }
+            };
+            document.addEventListener('click', onDocClick);
+          }
+          // if already open, allow normal navigation or button taps
+        }, { passive: false });
+      }
+    })();
   </script>
 </body>
 </html>
