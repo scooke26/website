@@ -6,16 +6,26 @@
   <title>Welcome — Idea Spaghetti</title>
   <meta name="description" content="Splash screen" />
 
-  <!-- #preloads -->
-  <link id="preload-hero" rel="preload" as="image" href="assets/welcome.png" />
-  <link id="preload-bg"   rel="preload" as="image" href="assets/background4.png" />
+  <!-- Preload artwork -->
+  <link rel="preload" as="image" href="assets/welcome.png" />
+  <link rel="preload" as="image" href="assets/background4.png" />
 
-  <!-- #styles -->
+  <!-- Preload fonts used at first paint -->
+  <link rel="preload" as="font" href="font/bangkok_bold_v1-0.woff2" type="font/woff2" crossorigin>
+  <link rel="preload" as="font" href="font/bangkok_regular_v1-0.woff2" type="font/woff2" crossorigin>
+
+  <!-- Generated @font-face rules (from your converter) -->
+  <link rel="stylesheet" href="font/generated-fonts.css">
+
   <style id="styles">
     :root{
-      --bg:#000;                 /* base color under everything */
-      --bgImageOpacity: 0.35;    /* 0..1 transparency for background image */
-      --pad: clamp(12px, 3vw, 36px);
+      --bg:#000;
+      --bgImageOpacity: 0.35;
+      --pad: clamp(16px, 3vw, 36px);
+
+      /* Font families */
+      --font-base: "Bangkok", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;    /* site-wide */
+      --font-plain: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;              /* tagline only */
     }
 
     html, body { height: 100%; }
@@ -23,22 +33,22 @@
       margin: 0;
       background: var(--bg);
       display: grid;
-      place-items: center; /* center content */
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      place-items: center;
+      font-family: var(--font-base);
       color: #fff;
     }
 
-    /* Full-screen splash wrapper (#splash) */
+    /* Full-screen splash wrapper (keeps center) */
     .splash {
       position: relative;
       min-height: 100svh;
       width: 100%;
       display: grid;
-      place-items: center;   /* keep centered on all screens */
-      isolation: isolate;    /* keeps layers clean */
+      place-items: center;
+      isolation: isolate;
     }
 
-    /* Background image layer (semi-transparent) */
+    /* Background image layer */
     .splash::before{
       content: "";
       position: fixed;
@@ -52,10 +62,17 @@
       pointer-events: none;
     }
 
-    /* Center artwork (clickable later) */
-    .splash__link { display:inline-block; outline: none; border-radius: 16px; z-index: 1; }
+    /* Center artwork */
+    .splash__media{
+      /* extra centering to eliminate any drift */
+      display: grid;
+      place-items: center;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    .splash__link { display:inline-block; outline: none; border-radius: 16px; }
     .splash__img {
-      /* ~20% larger max than original (620px → 744px), still capped by viewport */
       width: min(82vw, 744px);
       height: auto;
       display: block;
@@ -63,20 +80,20 @@
       animation: fadeIn .9s ease-out both;
     }
 
-    /* --- Hover/tap menu around the image (#menu) --- */
-    .splash__media { position: relative; display: inline-block; z-index: 2; } /* #media */
-
-    /* overlay centered on top of the image */
+    /* Hover/tap menu overlay */
     .splash__menu{
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
       gap: clamp(8px, 2vw, 16px); padding: clamp(8px, 2vw, 16px);
-      background: rgba(0,0,0,.35); border-radius: 20px;
+
+      /* FULLY TRANSPARENT overlay box (no tint, no blur, no rounded box) */
+      background: transparent;
+      border-radius: 0;
+      backdrop-filter: none;
+
       opacity: 0; pointer-events: none; transform: translateY(4px);
       transition: opacity .2s ease, transform .2s ease;
     }
-
-    /* show on hover, keyboard focus, or when JS toggles .open (mobile) */
     .splash__media:hover .splash__menu,
     .splash__media:focus-within .splash__menu,
     .splash__media.open .splash__menu{
@@ -84,55 +101,65 @@
     }
 
     .splash__btn{
+      font-family: var(--font-base);
+      font-weight: 700; /* set 400 for lighter buttons */
       padding: .6rem .9rem;
-      border: 1px solid rgba(255,255,255,.35);
+      border: 1px solid rgba(255,255,255,.7);
       border-radius: 999px;
-      color: #fff; text-decoration: none; font-weight: 700; letter-spacing: .04em;
-      backdrop-filter: blur(4px);
-      background: rgba(255,255,255,.08);
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      color: #fff; text-decoration: none; letter-spacing: .04em;
+
+      /* make each button itself fully transparent (no frosted box) */
+      background: transparent;
+      backdrop-filter: none;
+
+      display: inline-flex; align-items: center; justify-content: center; /* crisp centering */
+      transition: transform .12s ease, border-color .12s ease;
     }
     .splash__btn:hover,
     .splash__btn:focus-visible{
       transform: translateY(-1px);
-      background: rgba(255,255,255,.14);
-      border-color: rgba(255,255,255,.6);
+      border-color: #fff;
       outline: none;
     }
 
-    /* Bottom bar (full-width) */
+    /* Blurb pinned bottom-left */
     .splash__blurb{
       position: fixed;
       left: max(var(--pad), env(safe-area-inset-left));
-      right: max(var(--pad), env(safe-area-inset-right));
       bottom: max(var(--pad), env(safe-area-inset-bottom));
+      right: auto;
+      max-width: min(90vw, 680px);
+      text-align: left;
       z-index: 2;
-
-      max-width: none;
       padding: 0;
       background: transparent;
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-      border-radius: 0;
       box-shadow: none;
       animation: fadeIn .7s ease-out .1s both;
     }
 
-    /* Title row (brand) */
+    /* Title */
     .splash__title{
       margin: 0 0 .35rem 0;
-      font-weight: 900;
+      font-family: var(--font-base);
+      font-weight: 700;
       letter-spacing: .12em;
       text-transform: uppercase;
-      font-size: clamp(1.05rem, 2.6vw, 1.35rem);
+      font-size: clamp(1.58rem, 2.6vw, 2rem);
       line-height: 1.1;
+      white-space: nowrap;
     }
 
-    .splash__text{
+    /* Tagline (plain stack) */
+    .splash__text,
+    #tagline{
       margin: 0;
-      font-size: clamp(.85rem, 1.8vw, .98rem);
-      line-height: 1.35;
+      font-family: var(--font-plain);
+      font-weight: 400;
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      line-height: 1.4;
+      letter-spacing: .01em;
       color: rgba(255,255,255,.9);
+      max-width: 62ch;
     }
 
     @keyframes fadeIn {
@@ -151,7 +178,7 @@
 </head>
 <body id="body">
   <main id="splash" class="splash" aria-label="Splash">
-    <!-- #media: image + overlay menu -->
+    <!-- Image + overlay menu -->
     <div id="media" class="splash__media">
       <a id="enterLink" class="splash__link" href="#" aria-label="Enter site">
         <img
@@ -164,7 +191,6 @@
         />
       </a>
 
-      <!-- #menu: hover/tap buttons -->
       <nav id="menu" class="splash__menu" aria-label="Quick links">
         <a id="btnHome"     class="splash__btn" href="/home">Home</a>
         <a id="btnProjects" class="splash__btn" href="/projects">Projects</a>
@@ -174,7 +200,7 @@
       </nav>
     </div>
 
-    <!-- #blurb -->
+    <!-- Blurb (bottom-left) -->
     <section id="blurb" class="splash__blurb" aria-label="Intro">
       <h1 id="title" class="splash__title">Idea Spaghetti</h1>
       <p id="tagline" class="splash__text">
@@ -183,9 +209,8 @@
     </section>
   </main>
 
-  <!-- #script-interactions -->
   <script id="script-interactions">
-    // Optional: set a target to make the central image link somewhere (e.g. '/home')
+    // Optional: set a target to make the central image link somewhere (e.g., '/home')
     const TARGET_URL = null;
     const linkEl = document.querySelector('#enterLink');
     if (TARGET_URL && linkEl) {
@@ -224,7 +249,6 @@
             };
             document.addEventListener('click', onDocClick);
           }
-          // if already open, allow normal navigation or button taps
         }, { passive: false });
       }
     })();
