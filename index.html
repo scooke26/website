@@ -3,255 +3,135 @@
 <head id="head">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Welcome — Idea Spaghetti</title>
+  <title>Welcome — Summer Cooke</title>
   <meta name="description" content="Splash screen" />
 
-  <!-- Preload artwork -->
-  <link rel="preload" as="image" href="assets/welcome.png" />
-  <link rel="preload" as="image" href="assets/background4.png" />
-
-  <!-- Preload fonts used at first paint -->
-  <link rel="preload" as="font" href="font/bangkok_bold_v1-0.woff2" type="font/woff2" crossorigin>
-  <link rel="preload" as="font" href="font/bangkok_regular_v1-0.woff2" type="font/woff2" crossorigin>
-
-  <!-- Generated @font-face rules (from your converter) -->
-  <link rel="stylesheet" href="font/generated-fonts.css">
+  <!-- Preload new background (optional) -->
+  <link rel="preload" as="image" href="assets/background9.png" />
 
   <style id="styles">
     :root{
       --bg:#000;
-      --bgImageOpacity: 0.35;
-      --pad: clamp(16px, 3vw, 36px);
+      --bgImageOpacity:.35;
+      --pad: clamp(12px, 2.5vw, 28px);
 
-      /* Font families */
-      --font-base: "Bangkok", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;    /* site-wide */
-      --font-plain: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;              /* tagline only */
+      /* One clean regular system stack used everywhere */
+      --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+      /* Corner nav sizing */
+      --label-size: clamp(1.05rem, 2.2vw, 1.45rem);
+      --desc-size: clamp(.68rem, 1.1vw, .85rem);
+      --rule-color: rgba(255,255,255,.45);
+      --muted: rgba(255,255,255,.78);
+      --muted-dim: rgba(255,255,255,.52);
     }
 
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      display: grid;
-      place-items: center;
-      font-family: var(--font-base);
-      color: #fff;
+    html, body { height:100% }
+    body{
+      margin:0; color:#fff; background:var(--bg);
+      display:grid; place-items:center;          /* keeps page balanced even without a center logo */
+      font-family:var(--font-ui);
+      font-weight:400;                           /* regular everywhere */
     }
 
-    /* Full-screen splash wrapper (keeps center) */
-    .splash {
-      position: relative;
-      min-height: 100svh;
-      width: 100%;
-      display: grid;
-      place-items: center;
-      isolation: isolate;
+    /* Full-screen background image (new) */
+    body::before{
+      content:""; position:fixed; inset:0;
+      background:url("assets/background9.png") center/cover no-repeat;
+      opacity:var(--bgImageOpacity); pointer-events:none; z-index:-1;
     }
 
-    /* Background image layer */
-    .splash::before{
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-image: url("assets/background4.png");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      opacity: var(--bgImageOpacity);
-      z-index: 0;
-      pointer-events: none;
+    /* Corner Navigation pinned bottom-left */
+    .edgeNav{
+      position:fixed;
+      left:max(var(--pad), env(safe-area-inset-left));
+      bottom:max(var(--pad), env(safe-area-inset-bottom));
+      width:min(420px, 88vw);
+      z-index:2; user-select:none;
     }
 
-    /* Center artwork */
-    .splash__media{
-      /* extra centering to eliminate any drift */
-      display: grid;
-      place-items: center;
-      margin: 0 auto;
-      position: relative;
-      z-index: 2;
-    }
-    .splash__link { display:inline-block; outline: none; border-radius: 16px; }
-    .splash__img {
-      width: min(82vw, 744px);
-      height: auto;
-      display: block;
-      filter: drop-shadow(0 20px 30px rgba(255,255,255,.09));
-      animation: fadeIn .9s ease-out both;
+    /* Name (regular, larger, natural case) */
+    .edgeNav__brand{
+      margin:0 0 .35rem 0;
+      font-weight:400;                                /* regular */
+      font-size: clamp(1.15rem, 3vw, 1.6rem);         /* larger name */
+      line-height:1.08;
+      letter-spacing:.08em;
+      color:var(--muted);
+      text-transform:none;
     }
 
-    /* Hover/tap menu overlay */
-    .splash__menu{
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
-      gap: clamp(8px, 2vw, 16px); padding: clamp(8px, 2vw, 16px);
-
-      /* FULLY TRANSPARENT overlay box (no tint, no blur, no rounded box) */
-      background: transparent;
-      border-radius: 0;
-      backdrop-filter: none;
-
-      opacity: 0; pointer-events: none; transform: translateY(4px);
-      transition: opacity .2s ease, transform .2s ease;
-    }
-    .splash__media:hover .splash__menu,
-    .splash__media:focus-within .splash__menu,
-    .splash__media.open .splash__menu{
-      opacity: 1; pointer-events: auto; transform: none;
+    .edgeNav__list{
+      margin:0; padding:0; list-style:none;
+      border-top:1px solid var(--rule-color);
     }
 
-    .splash__btn{
-      font-family: var(--font-base);
-      font-weight: 700; /* set 400 for lighter buttons */
-      padding: .6rem .9rem;
-      border: 1px solid rgba(255,255,255,.7);
-      border-radius: 999px;
-      color: #fff; text-decoration: none; letter-spacing: .04em;
-
-      /* make each button itself fully transparent (no frosted box) */
-      background: transparent;
-      backdrop-filter: none;
-
-      display: inline-flex; align-items: center; justify-content: center; /* crisp centering */
-      transition: transform .12s ease, border-color .12s ease;
-    }
-    .splash__btn:hover,
-    .splash__btn:focus-visible{
-      transform: translateY(-1px);
-      border-color: #fff;
-      outline: none;
+    /* Two-column rows: left label, right descriptor */
+    .edgeNav__row{
+      display:grid; grid-template-columns: 1fr auto;
+      align-items:baseline; gap:.9rem;
+      padding:.6rem 0;
+      border-bottom:1px solid var(--rule-color);
     }
 
-    /* Blurb pinned bottom-left */
-    .splash__blurb{
-      position: fixed;
-      left: max(var(--pad), env(safe-area-inset-left));
-      bottom: max(var(--pad), env(safe-area-inset-bottom));
-      right: auto;
-      max-width: min(90vw, 680px);
-      text-align: left;
-      z-index: 2;
-      padding: 0;
-      background: transparent;
-      box-shadow: none;
-      animation: fadeIn .7s ease-out .1s both;
+    /* LEFT labels */
+    .edgeNav__link{
+      text-decoration:none; color:var(--muted);
+      font-weight:400;                               /* regular */
+      font-size:var(--label-size);
+      line-height:1.08;
+      transition: color .12s ease, transform .12s ease;
     }
 
-    /* Title */
-    .splash__title{
-      margin: 0 0 .35rem 0;
-      font-family: var(--font-base);
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      font-size: clamp(1.58rem, 2.6vw, 2rem);
-      line-height: 1.1;
-      white-space: nowrap;
+    /* RIGHT descriptions */
+    .edgeNav__desc{
+      justify-self:end; text-align:right;
+      font-weight:400;                               /* regular */
+      font-size:var(--desc-size);
+      color:var(--muted-dim);
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      line-height:1.2;
     }
 
-    /* Tagline (plain stack) */
-    .splash__text,
-    #tagline{
-      margin: 0;
-      font-family: var(--font-plain);
-      font-weight: 400;
-      font-size: clamp(1rem, 1.8vw, 1.2rem);
-      line-height: 1.4;
-      letter-spacing: .01em;
-      color: rgba(255,255,255,.9);
-      max-width: 62ch;
-    }
+    /* Hover/focus states */
+    .edgeNav__row:hover .edgeNav__link,
+    .edgeNav__link:focus-visible{ color:#fff; transform:translateY(-1px); outline:none; }
+    .edgeNav__row:hover .edgeNav__desc{ color:#fff; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); filter: blur(6px); }
-      to   { opacity: 1; transform: none; filter: none; }
-    }
-
-    .splash__link:focus-visible {
-      box-shadow: 0 0 0 3px rgba(255,255,255,.85), 0 0 0 6px rgba(255,255,255,.25);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .splash__img, .splash__blurb { animation: none; }
+    @media (max-width:640px){
+      .edgeNav__row{ gap:.6rem; }
     }
   </style>
 </head>
-<body id="body">
-  <main id="splash" class="splash" aria-label="Splash">
-    <!-- Image + overlay menu -->
-    <div id="media" class="splash__media">
-      <a id="enterLink" class="splash__link" href="#" aria-label="Enter site">
-        <img
-          id="heroImg"
-          class="splash__img"
-          src="assets/welcome.png"
-          alt="Spray-painted monogram with drips"
-          width="1000" height="1000"
-          loading="eager" decoding="async"
-        />
-      </a>
+<body>
+  <!-- (Logo removed) -->
 
-      <nav id="menu" class="splash__menu" aria-label="Quick links">
-        <a id="btnHome"     class="splash__btn" href="/home">Home</a>
-        <a id="btnProjects" class="splash__btn" href="/projects">Projects</a>
-        <a id="btnNotes"    class="splash__btn" href="/notes">Notes</a>
-        <a id="btnLab"      class="splash__btn" href="/lab">Lab</a>
-        <a id="btnAbout"    class="splash__btn" href="/about">About</a>
-      </nav>
-    </div>
-
-    <!-- Blurb (bottom-left) -->
-    <section id="blurb" class="splash__blurb" aria-label="Intro">
-      <h1 id="title" class="splash__title">Idea Spaghetti</h1>
-      <p id="tagline" class="splash__text">
-        A digital project lab for building, learning, and testing. Ideas travel from exploratory chaos to working prototypes.
-      </p>
-    </section>
-  </main>
-
-  <script id="script-interactions">
-    // Optional: set a target to make the central image link somewhere (e.g., '/home')
-    const TARGET_URL = null;
-    const linkEl = document.querySelector('#enterLink');
-    if (TARGET_URL && linkEl) {
-      linkEl.setAttribute('href', TARGET_URL);
-      linkEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          window.location.assign(TARGET_URL);
-        }
-      });
-    }
-
-    // Enable "tap to open menu" on touch devices (no hover)
-    (function(){
-      const media = document.querySelector('#media');
-      const link  = document.querySelector('#enterLink');
-      if (!media || !link) return;
-
-      const noHover = window.matchMedia('(hover: none)').matches;
-      if (noHover) {
-        let opened = false;
-
-        link.addEventListener('click', function(e){
-          if (!opened) {
-            e.preventDefault();
-            media.classList.add('open');
-            opened = true;
-
-            // Close menu when tapping outside
-            const onDocClick = (evt) => {
-              if (!media.contains(evt.target)) {
-                media.classList.remove('open');
-                opened = false;
-                document.removeEventListener('click', onDocClick);
-              }
-            };
-            document.addEventListener('click', onDocClick);
-          }
-        }, { passive: false });
-      }
-    })();
-  </script>
+  <!-- Corner navigation (bottom-left) -->
+  <aside class="edgeNav" aria-label="Primary">
+    <div class="edgeNav__brand">Summer Cooke</div>
+    <ul class="edgeNav__list">
+      <li class="edgeNav__row">
+        <a class="edgeNav__link" href="/time-capsule">Time Capsule</a>
+        <span class="edgeNav__desc">Portfolio</span>
+      </li>
+      <li class="edgeNav__row">
+        <a class="edgeNav__link" href="/lab">The Lab</a>
+        <span class="edgeNav__desc">Current Projects</span>
+      </li>
+      <li class="edgeNav__row">
+        <a class="edgeNav__link" href="/profile">Profile</a>
+        <span class="edgeNav__desc">Who I Am</span>
+      </li>
+      <li class="edgeNav__row">
+        <a class="edgeNav__link" href="/noodling">Noodling</a>
+        <span class="edgeNav__desc">Study Notes</span>
+      </li>
+      <li class="edgeNav__row">
+        <a class="edgeNav__link" href="/contact">Contact</a>
+        <span class="edgeNav__desc">Say Hello</span>
+      </li>
+    </ul>
+  </aside>
 </body>
 </html>
