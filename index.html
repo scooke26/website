@@ -6,7 +6,7 @@
   <title>Welcome — Summer Cooke.</title>
   <meta name="description" content="Splash screen" />
 
-  <!-- Preload new background (optional) -->
+  <!-- Preload background (optional) -->
   <link rel="preload" as="image" href="assets/welcome99.png" />
 
   <!-- Google Font: Lacquer (for name + left labels) -->
@@ -30,17 +30,20 @@
       --rule-color: rgba(255,255,255,.45);
       --muted: rgba(255,255,255,.78);
       --muted-dim: rgba(255,255,255,.52);
+
+      --section-max: 1100px;
+      --section-pad: clamp(20px, 6vw, 80px);
     }
 
     html, body { height:100% }
+    html { scroll-behavior: smooth; } /* native smooth scrolling */
     body{
       margin:0; color:#fff; background:var(--bg);
-      display:grid; place-items:center;
       font-family:var(--font-ui);
-      font-weight:400; /* regular everywhere by default */
+      font-weight:400;
     }
 
-    /* Full-screen background image (no animation) */
+    /* Full-screen ambient background (static) */
     body::before{
       content:""; position:fixed; inset:0;
       background:url("assets/welcome99.png") center/cover no-repeat;
@@ -107,57 +110,72 @@
       font-weight:400;
       font-size:var(--desc-size);
       color:var(--muted-dim);
-      letter-spacing:.12em;      /* this adds width beyond ch count */
+      letter-spacing:.12em;
       text-transform:uppercase;
       line-height:1.2;
-
-      /* typewriter base */
-      position: relative;
-      overflow: hidden;
-      white-space: nowrap;
-      border-right: 2px solid transparent;
-      padding-right: 0.4ch;      /* a bit more breathing room */
     }
 
-    /* Hover/focus states (keep subtle lift; no underline animation) */
+    /* Hover + active states */
     .edgeNav__row:hover .edgeNav__link,
     .edgeNav__link:focus-visible{ color:#fff; transform:translateY(-1px); outline:none; }
     .edgeNav__row:hover .edgeNav__desc{ color:#fff; }
+    .edgeNav__link[aria-current="true"]{ color:#fff; }
+    .edgeNav__link[aria-current="true"] + .edgeNav__desc{ color:#fff; }
 
     @media (max-width:640px){
       .edgeNav__row{ gap:.6rem; }
     }
 
-    /* ================== Typewriter (descriptors only) ================== */
-    .edgeNav__desc.typewriter{
-      width: 0ch;
-      border-right-color: rgba(255,255,255,.75);
-      /* slightly slower and smoother */
-      animation:
-        tw-reveal 1.4s steps(var(--tw-steps, 24)) .1s both,
-        tw-caret-hide 1.4s linear .1s both; /* caret disappears at the end */
+    /* ============== Sections ============== */
+    main { display:block; }
+
+    section {
+      min-height: 100vh;            /* full-viewport panels */
+      display: grid;
+      place-items: center;
+      padding: var(--section-pad);
+      box-sizing: border-box;
+      scroll-margin-top: 10vh;      /* buffer when using hash links */
     }
 
-    /* Reveal with a generous buffer to account for letter-spacing */
-    @keyframes tw-reveal{
-      from{ width: 0ch; }
-      to  { width: calc(var(--tw-ch, 14ch) + 3ch); } /* <- bigger buffer prevents clipping */
+    .section__inner{
+      width: 100%;
+      max-width: var(--section-max);
+      margin: 0 auto;
+      display: grid;
+      gap: clamp(12px, 2.6vw, 28px);
     }
 
-    /* Keep the caret visible while typing, then hide it at the end */
-    @keyframes tw-caret-hide{
-      0%   { border-right-color: rgba(255,255,255,.75); }
-      99%  { border-right-color: rgba(255,255,255,.75); }
-      100% { border-right-color: transparent; }
+    .section__eyebrow{
+      font-family: var(--font-ui);
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-size: .8rem;
+      color: var(--muted-dim);
     }
 
-    /* Reduced motion: no typing effect, no caret */
-    @media (prefers-reduced-motion: reduce){
-      .edgeNav__desc.typewriter{
-        animation: none !important;
-        width: auto !important;
-        border-right: none !important;
-      }
+    .section__title{
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.1;
+      margin: 0;
+      color: #fff;
+    }
+
+    .section__body{
+      font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+      line-height: 1.65;
+      color: rgba(255,255,255,.9);
+      max-width: 75ch;
+    }
+
+    /* Optional subtle dividers between panels */
+    .divider{
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
+      margin: 0;
     }
   </style>
 </head>
@@ -167,31 +185,121 @@
     <div class="edgeNav__brand">summer cooke</div>
     <ul class="edgeNav__list">
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/time-capsule">time capsule</a>
-        <!-- 9 letters => keep 9ch; steps ~ 12-16 -->
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 9ch; --tw-steps: 16;">Portfolio</span>
+        <a class="edgeNav__link" href="#time-capsule">time capsule</a>
+        <span class="edgeNav__desc">Portfolio</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/lab">The lab</a>
-        <!-- 16 letters incl space -->
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 16ch; --tw-steps: 22;">Current Projects</span>
+        <a class="edgeNav__link" href="#lab">The lab</a>
+        <span class="edgeNav__desc">Current Projects</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/profile">profile</a>
-        <!-- 8 letters + 2 words => 8ch is fine; add buffer handled in CSS -->
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 8ch; --tw-steps: 14;">Who I Am</span>
+        <a class="edgeNav__link" href="#profile">profile</a>
+        <span class="edgeNav__desc">Who I Am</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/noodling">noodling</a>
-        <!-- 11 letters incl space -->
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 11ch; --tw-steps: 18;">Study Notes</span>
+        <a class="edgeNav__link" href="#noodling">noodling</a>
+        <span class="edgeNav__desc">Study Notes</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/contact">contact</a>
-        <!-- 9 letters incl space -->
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 9ch; --tw-steps: 14;">Say Hello</span>
+        <a class="edgeNav__link" href="#contact">contact</a>
+        <span class="edgeNav__desc">Say Hello</span>
       </li>
     </ul>
   </aside>
+
+  <!-- One-page sections stacked vertically -->
+  <main>
+    <section id="time-capsule" aria-labelledby="time-capsule-title">
+      <div class="section__inner">
+        <div class="section__eyebrow">Portfolio</div>
+        <h1 class="section__title" id="time-capsule-title">Time Capsule</h1>
+        <p class="section__body">
+          Grid of selected work, slides, prototypes, and artifacts. Replace this with a portfolio layout (cards or a masonry grid).
+        </p>
+        <hr class="divider" />
+      </div>
+    </section>
+
+    <section id="lab" aria-labelledby="lab-title">
+      <div class="section__inner">
+        <div class="section__eyebrow">Current Projects</div>
+        <h2 class="section__title" id="lab-title">The Lab</h2>
+        <p class="section__body">
+          In-progress experiments, WIP notes, and demos. Embed live sandboxes or screenshots here.
+        </p>
+        <hr class="divider" />
+      </div>
+    </section>
+
+    <section id="profile" aria-labelledby="profile-title">
+      <div class="section__inner">
+        <div class="section__eyebrow">Who I Am</div>
+        <h2 class="section__title" id="profile-title">Profile</h2>
+        <p class="section__body">
+          Short bio, headshot, and a link to the full CV or LinkedIn. Keep it crisp and skimmable.
+        </p>
+        <hr class="divider" />
+      </div>
+    </section>
+
+    <section id="noodling" aria-labelledby="noodling-title">
+      <div class="section__inner">
+        <div class="section__eyebrow">Study Notes</div>
+        <h2 class="section__title" id="noodling-title">Noodling</h2>
+        <p class="section__body">
+          Topic clusters, class notes, and reading summaries. Consider a tag filter or search later.
+        </p>
+        <hr class="divider" />
+      </div>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-title">
+      <div class="section__inner">
+        <div class="section__eyebrow">Say Hello</div>
+        <h2 class="section__title" id="contact-title">Contact</h2>
+        <p class="section__body">
+          Email, calendly, or a tiny form. Tip: keep the form minimal—name, email, one message box.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Smooth-scroll (extra control vs CSS) + update active link as you scroll
+    const links = document.querySelectorAll('.edgeNav__link[href^="#"]');
+    const sections = [...document.querySelectorAll('main section')];
+    const byId = id => document.getElementById(id);
+
+    // Click -> smooth scroll + set hash without jump
+    links.forEach(link => {
+      link.addEventListener('click', e => {
+        const targetId = link.getAttribute('href').slice(1);
+        const targetEl = byId(targetId);
+        if (!targetEl) return;
+        e.preventDefault();
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.pushState(null, '', '#' + targetId);
+      });
+    });
+
+    // Highlight active nav item
+    const opts = { root: null, rootMargin: '0px 0px -40% 0px', threshold: 0.4 };
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(({ isIntersecting, target }) => {
+        if (!isIntersecting) return;
+        const id = target.id;
+        links.forEach(a => a.setAttribute('aria-current', a.getAttribute('href') === '#' + id));
+      });
+    }, opts);
+    sections.forEach(sec => io.observe(sec));
+
+    // On load with hash, align to section smoothly (optional)
+    window.addEventListener('load', () => {
+      if (location.hash) {
+        const el = byId(location.hash.slice(1));
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  </script>
 </body>
 </html>
