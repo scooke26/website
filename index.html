@@ -4,10 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Welcome — Summer Cooke</title>
-  <meta name="description" content="Long-scroll portfolio landing" />
-
-  <!-- Preload background (optional) -->
-  <link rel="preload" as="image" href="assets/welcome99.png" />
+  <meta name="description" content="Long-scroll portfolio with section backgrounds" />
 
   <!-- Google Font: Lacquer (for name + left labels) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,8 +13,6 @@
 
   <style id="styles">
     :root{
-      --bg:#000;
-      --bgImageOpacity:.35;
       --pad: clamp(12px, 2.5vw, 28px);
 
       /* Fonts */
@@ -33,43 +28,29 @@
 
       /* Content layout */
       --section-max: 1100px;
-      --section-pad-y: clamp(56px, 12vw, 160px); /* generous vertical rhythm */
+      --section-pad-y: clamp(64px, 12vw, 180px); /* generous vertical rhythm */
       --section-gap: clamp(12px, 2.6vw, 28px);
 
-      /* Mobile top bar height (when nav moves to top on small screens) */
       --mobile-topbar: 64px;
     }
 
     html { scroll-behavior: smooth; }
     body{
-      margin:0; color:#fff; background:var(--bg);
+      margin:0;
+      color:#fff;
+      background:#000; /* page background under everything */
       font-family:var(--font-ui);
       font-weight:400;
     }
 
-    /* Ambient background (static) */
-    body::before{
-      content:""; position:fixed; inset:0;
-      background:url("assets/welcome99.png") center/cover no-repeat;
-      opacity:var(--bgImageOpacity); pointer-events:none; z-index:-1;
-    }
-
-    /* Soft bottom-left glow */
-    body::after{
-      content:"";
-      position:fixed; inset:0; pointer-events:none; z-index:-1;
-      background: radial-gradient(520px circle at 8% 92%, rgba(0,0,0,.35), transparent 60%);
-    }
-
-    /* Corner Navigation (fixed bottom-left on desktop) */
+    /* ===== Corner Navigation (fixed bottom-left on desktop, sticky top on mobile) ===== */
     .edgeNav{
       position:fixed;
       left:max(var(--pad), env(safe-area-inset-left));
       bottom:max(var(--pad), env(safe-area-inset-bottom));
       width:min(420px, 88vw);
-      z-index:3; user-select:none;
+      z-index:5; user-select:none;
       background: transparent;
-      backdrop-filter: none;
     }
 
     .edgeNav__brand{
@@ -105,28 +86,21 @@
     }
     .edgeNav__desc{
       justify-self:end; text-align:right;
-      font-family:var(--font-ui);
-      font-weight:400;
-      font-size:var(--desc-size);
-      color:var(--muted-dim);
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      line-height:1.2;
+      font-weight:400; font-size:var(--desc-size);
+      color:var(--muted-dim); letter-spacing:.12em; text-transform:uppercase; line-height:1.2;
     }
 
-    /* Hover + “active” state */
     .edgeNav__row:hover .edgeNav__link,
     .edgeNav__link:focus-visible{ color:#fff; transform:translateY(-1px); outline:none; }
     .edgeNav__row:hover .edgeNav__desc{ color:#fff; }
     .edgeNav__link[aria-current="true"]{ color:#fff; }
     .edgeNav__link[aria-current="true"] + .edgeNav__desc{ color:#fff; }
 
-    /* Mobile: move nav to the top as a simple bar */
+    /* Mobile: move nav to the top as a sticky bar so it doesn't cover content */
     @media (max-width: 640px){
       .edgeNav{
         position: sticky;
-        top: 0;
-        left: 0; right: 0; bottom: auto;
+        top: 0; left: 0; right: 0; bottom: auto;
         width: 100%;
         padding: .6rem var(--pad);
         background: rgba(0,0,0,.65);
@@ -136,24 +110,44 @@
       .edgeNav__brand{ font-size: 1.8rem; margin-bottom: .2rem; }
       .edgeNav__list{ display: grid; grid-template-columns: 1fr 1fr; border-top: none; gap:.35rem .8rem; }
       .edgeNav__row{ border: none; padding: .1rem 0; gap:.4rem; }
-      .edgeNav__desc{ display:none; } /* hide right descriptors on small screens */
+      .edgeNav__desc{ display:none; }
       main{ padding-top: .4rem; }
     }
 
-    /* ===== Long-page sections (natural height) ===== */
-    main { display:block; }
-
-    section {
-      display:block;
+    /* ===== Section with its own background image ===== */
+    section{
+      position: relative;
+      isolation: isolate;             /* keep overlay local */
+      min-height: 70vh;               /* natural long page; adjust per content */
       padding: var(--section-pad-y) var(--pad);
       box-sizing: border-box;
-      scroll-margin-top: 18vh; /* buffer for hash targets (desktop) */
+      scroll-margin-top: 18vh;        /* space for hash targets (desktop) */
     }
-
     @media (max-width: 640px){
       section{ scroll-margin-top: calc(var(--mobile-topbar) + 12px); }
     }
 
+    /* The actual background per section */
+    section::before{
+      content:"";
+      position:absolute; inset:0;
+      z-index:-2;
+      background-image: var(--bg-url, none);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transform: translateZ(0); /* better perf */
+    }
+
+    /* Dark overlay for readability on any image */
+    section::after{
+      content:"";
+      position:absolute; inset:0; z-index:-1;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.55));
+    }
+
+    /* Section content container */
     .section__inner{
       width: 100%;
       max-width: var(--section-max);
@@ -166,7 +160,7 @@
       text-transform: uppercase;
       letter-spacing: .18em;
       font-size: .8rem;
-      color: var(--muted-dim);
+      color: rgba(255,255,255,.82);
     }
 
     .section__title{
@@ -176,38 +170,23 @@
       line-height: 1.1;
       margin: 0;
       color: #fff;
+      text-shadow: 0 1px 24px rgba(0,0,0,.35);
     }
 
     .section__body{
       font-size: clamp(0.95rem, 1.2vw, 1.05rem);
       line-height: 1.65;
-      color: rgba(255,255,255,.9);
+      color: rgba(255,255,255,.95);
       max-width: 75ch;
+      text-shadow: 0 1px 18px rgba(0,0,0,.35);
     }
 
     .divider{
       height: 1px;
       width: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
       margin: 0;
     }
-
-    /* Back-to-top button */
-    .toTop{
-      position: fixed;
-      right: max(var(--pad), 16px);
-      bottom: max(calc(var(--pad) + 8px), 16px);
-      z-index: 3;
-      display: none;
-      padding: .6rem .8rem;
-      border: 1px solid var(--rule-color);
-      background: rgba(0,0,0,.55);
-      color: #fff;
-      border-radius: 10px;
-      text-decoration: none;
-      font-size: .9rem;
-    }
-    .toTop.show{ display: inline-block; }
   </style>
 </head>
 <body>
@@ -238,32 +217,34 @@
     </ul>
   </aside>
 
-  <!-- Long scroll content -->
+  <!-- Long scroll content, each section declares its own background image -->
   <main>
-    <!-- Intro/hero can be short—just enough to hint there’s content below -->
-    <section id="intro" aria-labelledby="intro-title">
+    <!-- Intro/hero -->
+    <section id="intro" style="--bg-url: url('assets/intro-bg.jpg');" aria-labelledby="intro-title">
       <div class="section__inner">
         <div class="section__eyebrow">Welcome</div>
         <h1 class="section__title" id="intro-title">Hi, I’m Summer.</h1>
         <p class="section__body">
-          Scroll down for my time capsule (portfolio), current projects, profile, study notes, and ways to say hello.
+          Scroll for the time capsule (portfolio), current projects, profile, study notes, and how to say hello.
         </p>
         <hr class="divider" />
       </div>
     </section>
 
-    <section id="time-capsule" aria-labelledby="time-capsule-title">
+    <!-- Time Capsule -->
+    <section id="time-capsule" style="--bg-url: url('assets/timecapsule-bg.jpg');" aria-labelledby="time-capsule-title">
       <div class="section__inner">
         <div class="section__eyebrow">Portfolio</div>
         <h2 class="section__title" id="time-capsule-title">Time Capsule</h2>
         <p class="section__body">
-          Grid of selected work, slides, prototypes, and artifacts. Replace this with a portfolio layout (cards or a masonry grid).
+          Grid of selected work, slides, prototypes, and artifacts. Replace this with a portfolio layout (cards/masonry).
         </p>
         <hr class="divider" />
       </div>
     </section>
 
-    <section id="lab" aria-labelledby="lab-title">
+    <!-- The Lab -->
+    <section id="lab" style="--bg-url: url('assets/lab-bg.jpg');" aria-labelledby="lab-title">
       <div class="section__inner">
         <div class="section__eyebrow">Current Projects</div>
         <h2 class="section__title" id="lab-title">The Lab</h2>
@@ -274,7 +255,8 @@
       </div>
     </section>
 
-    <section id="profile" aria-labelledby="profile-title">
+    <!-- Profile -->
+    <section id="profile" style="--bg-url: url('assets/profile-bg.jpg');" aria-labelledby="profile-title">
       <div class="section__inner">
         <div class="section__eyebrow">Who I Am</div>
         <h2 class="section__title" id="profile-title">Profile</h2>
@@ -285,18 +267,20 @@
       </div>
     </section>
 
-    <section id="noodling" aria-labelledby="noodling-title">
+    <!-- Noodling -->
+    <section id="noodling" style="--bg-url: url('assets/noodling-bg.jpg');" aria-labelledby="noodling-title">
       <div class="section__inner">
         <div class="section__eyebrow">Study Notes</div>
         <h2 class="section__title" id="noodling-title">Noodling</h2>
-      <p class="section__body">
+        <p class="section__body">
           Topic clusters, class notes, and reading summaries. Consider a tag filter or search later.
         </p>
         <hr class="divider" />
       </div>
     </section>
 
-    <section id="contact" aria-labelledby="contact-title">
+    <!-- Contact -->
+    <section id="contact" style="--bg-url: url('assets/contact-bg.jpg');" aria-labelledby="contact-title">
       <div class="section__inner">
         <div class="section__eyebrow">Say Hello</div>
         <h2 class="section__title" id="contact-title">Contact</h2>
@@ -307,13 +291,10 @@
     </section>
   </main>
 
-  <a href="#intro" class="toTop" id="toTop">Back to top ↑</a>
-
   <script>
-    // Highlight the active nav link as you scroll
+    // Highlight active nav link as you scroll (based on section in view)
     const links = document.querySelectorAll('.edgeNav__link[href^="#"]');
     const sections = [...document.querySelectorAll('main section')];
-    const toTop = document.getElementById('toTop');
 
     const io = new IntersectionObserver((entries) => {
       entries.forEach(({ isIntersecting, target }) => {
@@ -326,13 +307,6 @@
     }, { root: null, rootMargin: '-35% 0px -50% 0px', threshold: 0.01 });
 
     sections.forEach(sec => io.observe(sec));
-
-    // Show back-to-top after you scroll past the intro
-    const intro = document.getElementById('intro');
-    const ioTop = new IntersectionObserver(([entry])=>{
-      toTop.classList.toggle('show', !entry.isIntersecting);
-    }, { threshold: 0 });
-    ioTop.observe(intro);
   </script>
 </body>
 </html>
