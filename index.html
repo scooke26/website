@@ -3,7 +3,7 @@
 <head id="head">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Welcome — Summer Cooke</title>
+  <title>Welcome — Summer Cooke.</title>
   <meta name="description" content="Splash screen" />
 
   <!-- Preload new background (optional) -->
@@ -21,7 +21,7 @@
       --pad: clamp(12px, 2.5vw, 28px);
 
       /* Font stacks */
-      --font-display: "Lacquer", sans-serif;                     /* Summer Cooke + left labels */
+      --font-display: "Lacquer", sans-serif; /* Summer Cooke + left labels */
       --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; /* right descriptions + base */
 
       /* Corner nav sizing */
@@ -31,10 +31,10 @@
       --muted: rgba(255,255,255,.78);
       --muted-dim: rgba(255,255,255,.52);
 
-      /* Drawer sizing */
-      --drawer-max: 720px;             /* hard cap */
-      --drawer-min: 420px;             /* don’t get too tiny */
-      --drawer-w: clamp(var(--drawer-min), 50vw, var(--drawer-max)); /* half screen feel */
+      /* Drawer sizing — 25% wider than before */
+      --drawer-max: 900px;    /* 720 * 1.25 */
+      --drawer-min: 525px;    /* 420 * 1.25 */
+      --drawer-w: clamp(var(--drawer-min), 62.5vw, var(--drawer-max)); /* 50vw -> 62.5vw */
     }
 
     html, body { height:100% }
@@ -42,7 +42,7 @@
       margin:0; color:#fff; background:var(--bg);
       display:grid; place-items:center;
       font-family:var(--font-ui);
-      font-weight:400; /* regular everywhere by default */
+      font-weight:400;
     }
 
     /* Full-screen background image (no animation) */
@@ -115,6 +115,7 @@
       letter-spacing:.12em;
       text-transform:uppercase;
       line-height:1.2;
+      cursor: pointer; /* make it feel clickable */
     }
 
     /* Hover/focus states (keep subtle lift) */
@@ -155,16 +156,6 @@
       display: grid;
       grid-template-rows: auto 1fr;
     }
-
-    /* Make sure we don't overlap the left nav too awkwardly */
-    @media (min-width: 860px){
-      /* leave a visual gutter near the nav by not exceeding ~calc of page minus nav area */
-      .drawer{
-        /* If you prefer to align the drawer edge roughly with the nav’s right edge, use: */
-        /* left: calc(max(var(--pad), env(safe-area-inset-left)) + min(420px, 88vw) + var(--pad)); right: 0; width: auto; */
-      }
-    }
-
     .drawer.open{ transform: translateX(0); }
 
     .drawer__header{
@@ -194,84 +185,118 @@
     .drawer__body p{
       margin:0; line-height:1.6; color: rgba(255,255,255,.92);
     }
-
-    /* Mobile: full width */
-    @media (max-width: 640px){
-      :root{ --drawer-w: 100vw; }
-    }
   </style>
 </head>
 <body>
   <!-- Corner navigation (bottom-left) -->
-  <aside class="edgeNav" aria-label="Primary">
+  <aside class="edgeNav" aria-label="Primary" id="edgeNav">
     <div class="edgeNav__brand">summer cooke</div>
     <ul class="edgeNav__list">
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/time-capsule">time capsule</a>
-        <span class="edgeNav__desc">Portfolio</span>
+        <a class="edgeNav__link" href="/time-capsule" data-panel="time-capsule">time capsule</a>
+        <span class="edgeNav__desc" data-panel="time-capsule">Portfolio</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/lab">The lab</a>
-        <span class="edgeNav__desc">Current Projects</span>
+        <a class="edgeNav__link" href="/lab" data-panel="lab">The lab</a>
+        <span class="edgeNav__desc" data-panel="lab">Current Projects</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/profile" id="profileLink">profile</a>
-        <span class="edgeNav__desc">Who I Am</span>
+        <a class="edgeNav__link" href="/profile" data-panel="profile">profile</a>
+        <span class="edgeNav__desc" data-panel="profile">Who I Am</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/noodling">noodling</a>
-        <span class="edgeNav__desc">Study Notes</span>
+        <a class="edgeNav__link" href="/noodling" data-panel="noodling">noodling</a>
+        <span class="edgeNav__desc" data-panel="noodling">Study Notes</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/contact">contact</a>
-        <span class="edgeNav__desc">Say Hello</span>
+        <a class="edgeNav__link" href="/contact" data-panel="contact">contact</a>
+        <span class="edgeNav__desc" data-panel="contact">Say Hello</span>
       </li>
     </ul>
   </aside>
 
-  <!-- Drawer + scrim -->
-  <div class="scrim" id="profileScrim" hidden></div>
-  <aside class="drawer" id="profileDrawer" aria-labelledby="drawerTitle" role="dialog" aria-modal="true" hidden>
+  <!-- Drawer + scrim (single reusable drawer) -->
+  <div class="scrim" id="drawerScrim" hidden></div>
+  <aside class="drawer" id="drawer" aria-labelledby="drawerTitle" role="dialog" aria-modal="true" hidden>
     <header class="drawer__header">
-      <h2 class="drawer__title" id="drawerTitle">Profile</h2>
-      <button class="drawer__close" id="drawerClose" aria-label="Close profile panel">Close ✕</button>
+      <h2 class="drawer__title" id="drawerTitle">Title</h2>
+      <button class="drawer__close" id="drawerClose" aria-label="Close panel">Close ✕</button>
     </header>
-    <div class="drawer__body">
-      <!-- Generic filler content for now -->
-      <p><strong>Summer Cooke</strong> — product + sustainability + systems thinker.</p>
-      <p>MIT Sloan MBA & MIT DUSP MCP (’26). Veteran. Builder of tools, dashboards, and playful web things.</p>
-      <p>
-        • Focus: corporate sustainability, circular economy, data centers & energy, transparent reporting.<br/>
-        • Skills: product strategy, data analysis, Python, notebooks, LCA/ESG frameworks, UX prototyping.
-      </p>
-      <p>
-        <a href="#" style="color:#fff; text-decoration:underline;">View full CV (PDF)</a> — <a href="#" style="color:#fff; text-decoration:underline;">LinkedIn</a>
-      </p>
+    <div class="drawer__body" id="drawerBody">
+      <!-- content injected by JS -->
     </div>
   </aside>
 
   <script>
-    // Elements
-    const profileLink = document.getElementById('profileLink');
-    const drawer = document.getElementById('profileDrawer');
-    const scrim = document.getElementById('profileScrim');
-    const closeBtn = document.getElementById('drawerClose');
+    // Content for each panel (placeholder copy for now)
+    const PANEL_CONTENT = {
+      'time-capsule': {
+        title: 'Time Capsule',
+        html: `
+          <p><strong>Selected Work</strong> — slides, prototypes, artifacts.</p>
+          <p>Coming soon: card grid with filters (topic, year, medium).</p>
+          <p><a href="#" style="color:#fff;text-decoration:underline;">Open full portfolio</a></p>
+        `
+      },
+      'lab': {
+        title: 'The Lab',
+        html: `
+          <p>TBD.</p>
+          <p>Idea backlog, quick GIFs/screenshots, and links to sandboxes.</p>
+        `
+      },
+      'profile': {
+        title: 'Profile',
+        html: `
+          <p><strong>Summer Cooke</strong> — TBD.</p>
+          <p>INFO HERE TBD.</p>
+          <p><a href="#" style="color:#fff;text-decoration:underline;">View CV</a> — <a href="#" style="color:#fff;text-decoration:underline;">LinkedIn</a></p>
+        `
+      },
+      'noodling': {
+        title: 'Noodling',
+        html: `
+          <p>TBD.</p>
+          <p>TBD.</p>
+        `
+      },
+      'contact': {
+        title: 'Contact',
+        html: `
+          <p>Say hi! Minimal form or links:</p>
+          <p>Email: <a href="mailto:hello@example.com" style="color:#fff;text-decoration:underline;">hello@example.com</a></p>
+          <p><a href="#" style="color:#fff;text-decoration:underline;">Schedule via Calendly</a></p>
+        `
+      }
+    };
 
-    // Helpers
-    const openDrawer = () => {
+    // Elements
+    const nav = document.getElementById('edgeNav');
+    const drawer = document.getElementById('drawer');
+    const scrim = document.getElementById('drawerScrim');
+    const closeBtn = document.getElementById('drawerClose');
+    const drawerTitle = document.getElementById('drawerTitle');
+    const drawerBody = document.getElementById('drawerBody');
+
+    // Open/close helpers
+    const openDrawer = (panelKey) => {
+      const { title, html } = PANEL_CONTENT[panelKey] || { title: 'Info', html: '<p>Content coming soon.</p>' };
+      drawerTitle.textContent = title;
+      drawerBody.innerHTML = html;
+
       drawer.hidden = false;
       scrim.hidden = false;
       // force reflow so transition applies when toggling classes
       void drawer.offsetWidth;
       drawer.classList.add('open');
       scrim.classList.add('show');
-      document.body.style.overflow = 'hidden';  // prevent background scroll
+      document.body.style.overflow = 'hidden';
     };
+
     const closeDrawer = () => {
       drawer.classList.remove('open');
       scrim.classList.remove('show');
       document.body.style.overflow = '';
-      // hide after transition ends
       const onEnd = () => {
         drawer.hidden = true;
         scrim.hidden = true;
@@ -280,17 +305,22 @@
       drawer.addEventListener('transitionend', onEnd);
     };
 
-    // Wire up
-    profileLink?.addEventListener('click', (e) => {
-      // keep the URL the same (don’t navigate away)
+    // Delegate clicks from the whole nav: works for both link and small text
+    nav.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-panel]');
+      if (!el) return;
+
+      const panel = el.getAttribute('data-panel');
+      if (!panel) return;
+
+      // prevent navigating away (since hrefs point to real pages)
       e.preventDefault();
-      openDrawer();
+      openDrawer(panel);
     });
+
     closeBtn.addEventListener('click', closeDrawer);
     scrim.addEventListener('click', closeDrawer);
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeDrawer();
-    });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
   </script>
 </body>
 </html>
