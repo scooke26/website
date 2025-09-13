@@ -127,31 +127,55 @@
     }
 
     /* ================== Typewriter (descriptors only) ================== */
-    .edgeNav__desc.typewriter{
-      width: 0ch;
-      border-right-color: rgba(255,255,255,.75);
-      /* Faster than 5s demo: ~1.1s default; adjust steps to your text length */
-      animation:
-        tw-reveal 1.1s steps(16) .1s both,
-        tw-caret 600ms steps(1) infinite;
-    }
-    @keyframes tw-reveal {
-      from { width: 0ch; }
-      to   { width: var(--tw-ch, 14ch); } /* set per element */
-    }
-    @keyframes tw-caret { 50% { border-right-color: transparent; } }
+.edgeNav__desc{
+  justify-self:end; text-align:right;
+  font-family:var(--font-ui);
+  font-weight:400;
+  font-size:var(--desc-size);
+  color:var(--muted-dim);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  line-height:1.2;
 
-    /* Respect reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      .edgeNav__desc.typewriter{
-        animation: none !important;
-        width: auto !important;
-        border-right: none !important;
-      }
-    }
-  </style>
-</head>
-<body>
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid transparent;
+  padding-right: 0.2ch; /* small breathing room at end */
+}
+
+/* Apply to the descriptors you want animated */
+.edgeNav__desc.typewriter{
+  width: 0ch;
+  border-right-color: rgba(255,255,255,.75);
+  /* slightly slower: 1.4s; adjust steps to match length */
+  animation:
+    tw-reveal 1.4s steps(16) .1s both,
+    tw-caret-hide 1.4s linear .1s both; /* caret disappears at the end */
+}
+
+/* Reveal the text, with a small width buffer to prevent clipping */
+@keyframes tw-reveal{
+  from{ width: 0ch; }
+  to  { width: calc(var(--tw-ch, 14ch) + 0.6ch); } /* buffer avoids 1-char cutoff */
+}
+
+/* Keep the caret visible while typing, then hide it at the end */
+@keyframes tw-caret-hide{
+  0%   { border-right-color: rgba(255,255,255,.75); }
+  99%  { border-right-color: rgba(255,255,255,.75); }
+  100% { border-right-color: transparent; }
+}
+
+/* Reduced motion: no typing effect, no caret */
+@media (prefers-reduced-motion: reduce){
+  .edgeNav__desc.typewriter{
+    animation: none !important;
+    width: auto !important;
+    border-right: none !important;
+  }
+}
+
   <!-- Corner navigation (bottom-left) -->
   <aside class="edgeNav" aria-label="Primary">
     <div class="edgeNav__brand">summer cooke</div>
