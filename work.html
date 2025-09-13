@@ -5,34 +5,30 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Work — Summer Cooke</title>
 
-  <!-- Google Font to match your vibe -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lacquer&display=swap" rel="stylesheet">
 
-  <!-- Styles -->
   <link rel="stylesheet" href="css/work.css">
 </head>
 <body>
-  <!-- Top bar -->
   <header class="topbar" aria-label="Site">
     <div class="brand">summer cooke</div>
 
-    <!-- Two-line "cursor" menu button -->
     <button class="hambtn" id="menuBtn" aria-expanded="false" aria-controls="menuDropdown" aria-label="Open menu">
-      <span class="line"></span>
-      <span class="line"></span>
+      <!-- ADDED classes -->
+      <span class="line top"></span>
+      <span class="line bottom"></span>
     </button>
 
-    <!-- Dropdown menu -->
     <nav class="dropdown" id="menuDropdown" aria-hidden="true" aria-label="Main">
-      <a href="/">Home</a>
-      <a href="/profile">Profile</a>
-      <a href="/contact">Contact</a>
+      <!-- use relative links if you’re on GH Pages -->
+      <a href="./index.html">Home</a>
+      <a href="./index.html#profile">Profile</a>
+      <a href="./index.html#contact">Contact</a>
     </nav>
   </header>
 
-  <!-- Work list -->
   <main class="work" aria-label="Work">
     <div class="row">
       <a href="#project1" data-slug="project1">project1</a>
@@ -60,7 +56,6 @@
     </div>
   </main>
 
-  <!-- Full-screen project panel -->
   <section class="panel" id="panel" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="panelTop">
       <button class="backBtn" id="backBtn" type="button" aria-label="Back to work">
@@ -76,13 +71,12 @@
     </div>
   </section>
 
-  <!-- Hover preview that follows the mouse -->
   <div id="cursorPreview" class="cursorPreview" aria-hidden="true">
     <img alt="" id="cursorPreviewImg">
   </div>
 
-  <!-- Scripts (order matters: projects before work) -->
-	<script src="projects.js"></script>
-	<script src="work.js" defer></script>
+  <!-- order matters; both deferred keeps order and avoids blocking -->
+  <script src="projects.js" defer></script>
+  <script src="work.js" defer></script>
 </body>
 </html>
