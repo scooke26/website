@@ -30,6 +30,11 @@
       --rule-color: rgba(255,255,255,.45);
       --muted: rgba(255,255,255,.78);
       --muted-dim: rgba(255,255,255,.52);
+
+      /* Drawer sizing */
+      --drawer-max: 720px;             /* hard cap */
+      --drawer-min: 420px;             /* don’t get too tiny */
+      --drawer-w: clamp(var(--drawer-min), 50vw, var(--drawer-max)); /* half screen feel */
     }
 
     html, body { height:100% }
@@ -120,6 +125,80 @@
     @media (max-width:640px){
       .edgeNav__row{ gap:.6rem; }
     }
+
+    /* ================= Drawer (slides in from the right) ================= */
+    .scrim{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      backdrop-filter: blur(2px);
+      z-index: 8;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
+    }
+    .scrim.show{
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer{
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: var(--drawer-w);
+      max-width: 100%;
+      z-index: 9;
+      background: rgba(12,12,12,.92);
+      border-left: 1px solid var(--rule-color);
+      box-shadow: -24px 0 60px rgba(0,0,0,.6);
+      transform: translateX(100%);
+      transition: transform .34s cubic-bezier(.22,.61,.36,1);
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    /* Make sure we don't overlap the left nav too awkwardly */
+    @media (min-width: 860px){
+      /* leave a visual gutter near the nav by not exceeding ~calc of page minus nav area */
+      .drawer{
+        /* If you prefer to align the drawer edge roughly with the nav’s right edge, use: */
+        /* left: calc(max(var(--pad), env(safe-area-inset-left)) + min(420px, 88vw) + var(--pad)); right: 0; width: auto; */
+      }
+    }
+
+    .drawer.open{ transform: translateX(0); }
+
+    .drawer__header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--rule-color);
+    }
+    .drawer__title{
+      margin:0;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: clamp(1.4rem, 2.6vw, 2rem);
+      letter-spacing:.04em;
+      color:#fff;
+    }
+    .drawer__close{
+      appearance:none; border:1px solid var(--rule-color);
+      background: transparent; color:#fff;
+      border-radius: 10px; padding: 8px 12px;
+      cursor:pointer; font-size:.9rem;
+    }
+    .drawer__body{
+      padding: 20px;
+      overflow: auto;
+      display: grid; gap: 12px;
+    }
+    .drawer__body p{
+      margin:0; line-height:1.6; color: rgba(255,255,255,.92);
+    }
+
+    /* Mobile: full width */
+    @media (max-width: 640px){
+      :root{ --drawer-w: 100vw; }
+    }
   </style>
 </head>
 <body>
@@ -136,7 +215,7 @@
         <span class="edgeNav__desc">Current Projects</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="/profile">profile</a>
+        <a class="edgeNav__link" href="/profile" id="profileLink">profile</a>
         <span class="edgeNav__desc">Who I Am</span>
       </li>
       <li class="edgeNav__row">
@@ -149,5 +228,69 @@
       </li>
     </ul>
   </aside>
+
+  <!-- Drawer + scrim -->
+  <div class="scrim" id="profileScrim" hidden></div>
+  <aside class="drawer" id="profileDrawer" aria-labelledby="drawerTitle" role="dialog" aria-modal="true" hidden>
+    <header class="drawer__header">
+      <h2 class="drawer__title" id="drawerTitle">Profile</h2>
+      <button class="drawer__close" id="drawerClose" aria-label="Close profile panel">Close ✕</button>
+    </header>
+    <div class="drawer__body">
+      <!-- Generic filler content for now -->
+      <p><strong>Summer Cooke</strong> — product + sustainability + systems thinker.</p>
+      <p>MIT Sloan MBA & MIT DUSP MCP (’26). Veteran. Builder of tools, dashboards, and playful web things.</p>
+      <p>
+        • Focus: corporate sustainability, circular economy, data centers & energy, transparent reporting.<br/>
+        • Skills: product strategy, data analysis, Python, notebooks, LCA/ESG frameworks, UX prototyping.
+      </p>
+      <p>
+        <a href="#" style="color:#fff; text-decoration:underline;">View full CV (PDF)</a> — <a href="#" style="color:#fff; text-decoration:underline;">LinkedIn</a>
+      </p>
+    </div>
+  </aside>
+
+  <script>
+    // Elements
+    const profileLink = document.getElementById('profileLink');
+    const drawer = document.getElementById('profileDrawer');
+    const scrim = document.getElementById('profileScrim');
+    const closeBtn = document.getElementById('drawerClose');
+
+    // Helpers
+    const openDrawer = () => {
+      drawer.hidden = false;
+      scrim.hidden = false;
+      // force reflow so transition applies when toggling classes
+      void drawer.offsetWidth;
+      drawer.classList.add('open');
+      scrim.classList.add('show');
+      document.body.style.overflow = 'hidden';  // prevent background scroll
+    };
+    const closeDrawer = () => {
+      drawer.classList.remove('open');
+      scrim.classList.remove('show');
+      document.body.style.overflow = '';
+      // hide after transition ends
+      const onEnd = () => {
+        drawer.hidden = true;
+        scrim.hidden = true;
+        drawer.removeEventListener('transitionend', onEnd);
+      };
+      drawer.addEventListener('transitionend', onEnd);
+    };
+
+    // Wire up
+    profileLink?.addEventListener('click', (e) => {
+      // keep the URL the same (don’t navigate away)
+      e.preventDefault();
+      openDrawer();
+    });
+    closeBtn.addEventListener('click', closeDrawer);
+    scrim.addEventListener('click', closeDrawer);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDrawer();
+    });
+  </script>
 </body>
 </html>
