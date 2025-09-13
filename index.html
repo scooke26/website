@@ -3,8 +3,11 @@
 <head id="head">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Welcome — Summer Cooke</title>
-  <meta name="description" content="Long-scroll portfolio with section backgrounds" />
+  <title>Welcome — Summer Cooke.</title>
+  <meta name="description" content="Splash screen" />
+
+  <!-- Preload new background (optional) -->
+  <link rel="preload" as="image" href="assets/welcome99.png" />
 
   <!-- Google Font: Lacquer (for name + left labels) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,49 +16,58 @@
 
   <style id="styles">
     :root{
+      --bg:#000;
+      --bgImageOpacity:.35;
       --pad: clamp(12px, 2.5vw, 28px);
 
-      /* Fonts */
-      --font-display: "Lacquer", sans-serif; /* name + left labels */
-      --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      /* Font stacks */
+      --font-display: "Lacquer", sans-serif;                     /* Summer Cooke + left labels */
+      --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; /* right descriptions + base */
 
-      /* Nav sizing/colors */
+      /* Corner nav sizing */
       --label-size: clamp(1.05rem, 2.2vw, 1.45rem);
       --desc-size: clamp(.68rem, 1.1vw, .85rem);
       --rule-color: rgba(255,255,255,.45);
       --muted: rgba(255,255,255,.78);
       --muted-dim: rgba(255,255,255,.52);
-
-      /* Content layout */
-      --section-max: 1100px;
-      --section-pad-y: clamp(64px, 12vw, 180px); /* generous vertical rhythm */
-      --section-gap: clamp(12px, 2.6vw, 28px);
-
-      --mobile-topbar: 64px;
     }
 
-    html { scroll-behavior: smooth; }
+    html, body { height:100% }
     body{
-      margin:0;
-      color:#fff;
-      background:#000; /* page background under everything */
+      margin:0; color:#fff; background:var(--bg);
+      display:grid; place-items:center;
       font-family:var(--font-ui);
-      font-weight:400;
+      font-weight:400; /* regular everywhere by default */
     }
 
-    /* ===== Corner Navigation (fixed bottom-left on desktop, sticky top on mobile) ===== */
+    /* Full-screen background image (no animation) */
+    body::before{
+      content:""; position:fixed; inset:0;
+      background:url("assets/welcome99.png") center/cover no-repeat;
+      opacity:var(--bgImageOpacity); pointer-events:none; z-index:-1;
+    }
+
+    /* Soft bottom-left glow to reduce empty feel (static) */
+    body::after{
+      content:"";
+      position:fixed; inset:0; pointer-events:none; z-index:-1;
+      background: radial-gradient(520px circle at 8% 92%, rgba(0,0,0,.35), transparent 60%);
+    }
+
+    /* Corner Navigation pinned bottom-left */
     .edgeNav{
       position:fixed;
       left:max(var(--pad), env(safe-area-inset-left));
       bottom:max(var(--pad), env(safe-area-inset-bottom));
       width:min(420px, 88vw);
-      z-index:5; user-select:none;
-      background: transparent;
+      z-index:2; user-select:none;
     }
 
+    /* Name (Lacquer regular, larger, natural case) */
     .edgeNav__brand{
       margin:0 0 .35rem 0;
       font-family:var(--font-display);
+      font-style: normal;
       font-weight: 400;
       font-size: clamp(2rem, 6vw, 3.6rem);
       line-height:1.08;
@@ -69,6 +81,7 @@
       border-top:1px solid var(--rule-color);
     }
 
+    /* Two-column rows: left label (Lacquer), right descriptor (system) */
     .edgeNav__row{
       display:grid; grid-template-columns: 1fr auto;
       align-items:baseline; gap:.9rem;
@@ -76,237 +89,104 @@
       border-bottom:1px solid var(--rule-color);
     }
 
+    /* LEFT labels = Lacquer regular */
     .edgeNav__link{
       text-decoration:none; color:var(--muted);
       font-family:var(--font-display);
+      font-style: normal;
       font-weight: 400;
       font-size:var(--label-size);
       line-height:1.08;
       transition: color .12s ease, transform .12s ease;
     }
+
+    /* RIGHT descriptions = system stack (regular, smaller, uppercase) */
     .edgeNav__desc{
       justify-self:end; text-align:right;
-      font-weight:400; font-size:var(--desc-size);
-      color:var(--muted-dim); letter-spacing:.12em; text-transform:uppercase; line-height:1.2;
+      font-family:var(--font-ui);
+      font-weight:400;
+      font-size:var(--desc-size);
+      color:var(--muted-dim);
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      line-height:1.2;
+
+      /* typewriter base */
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 2px solid transparent;
+      padding-right: 0.2ch; /* small breathing room at end */
     }
 
+    /* Hover/focus states (keep subtle lift; no underline animation) */
     .edgeNav__row:hover .edgeNav__link,
     .edgeNav__link:focus-visible{ color:#fff; transform:translateY(-1px); outline:none; }
     .edgeNav__row:hover .edgeNav__desc{ color:#fff; }
-    .edgeNav__link[aria-current="true"]{ color:#fff; }
-    .edgeNav__link[aria-current="true"] + .edgeNav__desc{ color:#fff; }
 
-    /* Mobile: move nav to the top as a sticky bar so it doesn't cover content */
-    @media (max-width: 640px){
-      .edgeNav{
-        position: sticky;
-        top: 0; left: 0; right: 0; bottom: auto;
-        width: 100%;
-        padding: .6rem var(--pad);
-        background: rgba(0,0,0,.65);
-        backdrop-filter: blur(4px);
-        border-bottom: 1px solid var(--rule-color);
+    @media (max-width:640px){
+      .edgeNav__row{ gap:.6rem; }
+    }
+
+    /* ================== Typewriter (descriptors only) ================== */
+    .edgeNav__desc.typewriter{
+      width: 0ch;
+      border-right-color: rgba(255,255,255,.75);
+      /* slightly slower and smoother */
+      animation:
+        tw-reveal 1.4s steps(16) .1s both,
+        tw-caret-hide 1.4s linear .1s both; /* caret disappears at the end */
+    }
+
+    /* Reveal the text, with a small width buffer to prevent clipping */
+    @keyframes tw-reveal{
+      from{ width: 0ch; }
+      to  { width: calc(var(--tw-ch, 14ch) + 0.6ch); } /* buffer avoids 1-char cutoff */
+    }
+
+    /* Keep the caret visible while typing, then hide it at the end */
+    @keyframes tw-caret-hide{
+      0%   { border-right-color: rgba(255,255,255,.75); }
+      99%  { border-right-color: rgba(255,255,255,.75); }
+      100% { border-right-color: transparent; }
+    }
+
+    /* Reduced motion: no typing effect, no caret */
+    @media (prefers-reduced-motion: reduce){
+      .edgeNav__desc.typewriter{
+        animation: none !important;
+        width: auto !important;
+        border-right: none !important;
       }
-      .edgeNav__brand{ font-size: 1.8rem; margin-bottom: .2rem; }
-      .edgeNav__list{ display: grid; grid-template-columns: 1fr 1fr; border-top: none; gap:.35rem .8rem; }
-      .edgeNav__row{ border: none; padding: .1rem 0; gap:.4rem; }
-      .edgeNav__desc{ display:none; }
-      main{ padding-top: .4rem; }
-    }
-
-    /* ===== Section with its own background image ===== */
-    section{
-      position: relative;
-      isolation: isolate;             /* keep overlay local */
-      min-height: 70vh;               /* natural long page; adjust per content */
-      padding: var(--section-pad-y) var(--pad);
-      box-sizing: border-box;
-      scroll-margin-top: 18vh;        /* space for hash targets (desktop) */
-    }
-    @media (max-width: 640px){
-      section{ scroll-margin-top: calc(var(--mobile-topbar) + 12px); }
-    }
-
-    /* The actual background per section */
-    section::before{
-      content:"";
-      position:absolute; inset:0;
-      z-index:-2;
-      background-image: var(--bg-url, none);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      transform: translateZ(0); /* better perf */
-    }
-
-    /* Dark overlay for readability on any image */
-    section::after{
-      content:"";
-      position:absolute; inset:0; z-index:-1;
-      background:
-        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.55));
-    }
-
-    /* Section content container */
-    .section__inner{
-      width: 100%;
-      max-width: var(--section-max);
-      margin: 0 auto;
-      display: grid;
-      gap: var(--section-gap);
-    }
-
-    .section__eyebrow{
-      text-transform: uppercase;
-      letter-spacing: .18em;
-      font-size: .8rem;
-      color: rgba(255,255,255,.82);
-    }
-
-    .section__title{
-      font-family: var(--font-display);
-      font-weight: 400;
-      font-size: clamp(2rem, 5vw, 3rem);
-      line-height: 1.1;
-      margin: 0;
-      color: #fff;
-      text-shadow: 0 1px 24px rgba(0,0,0,.35);
-    }
-
-    .section__body{
-      font-size: clamp(0.95rem, 1.2vw, 1.05rem);
-      line-height: 1.65;
-      color: rgba(255,255,255,.95);
-      max-width: 75ch;
-      text-shadow: 0 1px 18px rgba(0,0,0,.35);
-    }
-
-    .divider{
-      height: 1px;
-      width: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
-      margin: 0;
     }
   </style>
 </head>
 <body>
-  <!-- Corner nav (desktop) / Top bar (mobile) -->
+  <!-- Corner navigation (bottom-left) -->
   <aside class="edgeNav" aria-label="Primary">
     <div class="edgeNav__brand">summer cooke</div>
     <ul class="edgeNav__list">
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="#time-capsule">time capsule</a>
-        <span class="edgeNav__desc">Portfolio</span>
+        <a class="edgeNav__link" href="/time-capsule">time capsule</a>
+        <span class="edgeNav__desc typewriter" style="--tw-ch: 9ch;">Portfolio</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="#lab">The lab</a>
-        <span class="edgeNav__desc">Current Projects</span>
+        <a class="edgeNav__link" href="/lab">The lab</a>
+        <span class="edgeNav__desc typewriter" style="--tw-ch: 16ch;">Current Projects</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="#profile">profile</a>
-        <span class="edgeNav__desc">Who I Am</span>
+        <a class="edgeNav__link" href="/profile">profile</a>
+        <span class="edgeNav__desc typewriter" style="--tw-ch: 8ch;">Who I Am</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="#noodling">noodling</a>
-        <span class="edgeNav__desc">Study Notes</span>
+        <a class="edgeNav__link" href="/noodling">noodling</a>
+        <span class="edgeNav__desc typewriter" style="--tw-ch: 11ch;">Study Notes</span>
       </li>
       <li class="edgeNav__row">
-        <a class="edgeNav__link" href="#contact">contact</a>
-        <span class="edgeNav__desc">Say Hello</span>
+        <a class="edgeNav__link" href="/contact">contact</a>
+        <span class="edgeNav__desc typewriter" style="--tw-ch: 9ch;">Say Hello</span>
       </li>
     </ul>
   </aside>
-
-  <!-- Long scroll content, each section declares its own background image -->
-  <main>
-    <!-- Intro/hero -->
-    <section id="intro" style="--bg-url: url('assets/intro-bg.jpg');" aria-labelledby="intro-title">
-      <div class="section__inner">
-        <div class="section__eyebrow">Welcome</div>
-        <h1 class="section__title" id="intro-title">Hi, I’m Summer.</h1>
-        <p class="section__body">
-          Scroll for the time capsule (portfolio), current projects, profile, study notes, and how to say hello.
-        </p>
-        <hr class="divider" />
-      </div>
-    </section>
-
-    <!-- Time Capsule -->
-    <section id="time-capsule" style="--bg-url: url('assets/timecapsule-bg.jpg');" aria-labelledby="time-capsule-title">
-      <div class="section__inner">
-        <div class="section__eyebrow">Portfolio</div>
-        <h2 class="section__title" id="time-capsule-title">Time Capsule</h2>
-        <p class="section__body">
-          Grid of selected work, slides, prototypes, and artifacts. Replace this with a portfolio layout (cards/masonry).
-        </p>
-        <hr class="divider" />
-      </div>
-    </section>
-
-    <!-- The Lab -->
-    <section id="lab" style="--bg-url: url('assets/lab-bg.jpg');" aria-labelledby="lab-title">
-      <div class="section__inner">
-        <div class="section__eyebrow">Current Projects</div>
-        <h2 class="section__title" id="lab-title">The Lab</h2>
-        <p class="section__body">
-          In-progress experiments, WIP notes, and demos. Embed live sandboxes or screenshots here.
-        </p>
-        <hr class="divider" />
-      </div>
-    </section>
-
-    <!-- Profile -->
-    <section id="profile" style="--bg-url: url('assets/profile-bg.jpg');" aria-labelledby="profile-title">
-      <div class="section__inner">
-        <div class="section__eyebrow">Who I Am</div>
-        <h2 class="section__title" id="profile-title">Profile</h2>
-        <p class="section__body">
-          Short bio, headshot, and a link to the full CV or LinkedIn. Keep it crisp and skimmable.
-        </p>
-        <hr class="divider" />
-      </div>
-    </section>
-
-    <!-- Noodling -->
-    <section id="noodling" style="--bg-url: url('assets/noodling-bg.jpg');" aria-labelledby="noodling-title">
-      <div class="section__inner">
-        <div class="section__eyebrow">Study Notes</div>
-        <h2 class="section__title" id="noodling-title">Noodling</h2>
-        <p class="section__body">
-          Topic clusters, class notes, and reading summaries. Consider a tag filter or search later.
-        </p>
-        <hr class="divider" />
-      </div>
-    </section>
-
-    <!-- Contact -->
-    <section id="contact" style="--bg-url: url('assets/contact-bg.jpg');" aria-labelledby="contact-title">
-      <div class="section__inner">
-        <div class="section__eyebrow">Say Hello</div>
-        <h2 class="section__title" id="contact-title">Contact</h2>
-        <p class="section__body">
-          Email, calendly, or a tiny form. Tip: keep the form minimal—name, email, one message box.
-        </p>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    // Highlight active nav link as you scroll (based on section in view)
-    const links = document.querySelectorAll('.edgeNav__link[href^="#"]');
-    const sections = [...document.querySelectorAll('main section')];
-
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(({ isIntersecting, target }) => {
-        if (!isIntersecting) return;
-        const id = target.id;
-        links.forEach(a => {
-          a.setAttribute('aria-current', a.getAttribute('href') === '#' + id ? 'true' : 'false');
-        });
-      });
-    }, { root: null, rootMargin: '-35% 0px -50% 0px', threshold: 0.01 });
-
-    sections.forEach(sec => io.observe(sec));
-  </script>
 </body>
 </html>
