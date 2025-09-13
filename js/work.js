@@ -1,5 +1,5 @@
-/* work.js — split view controller: placeholder on left, hover/focus/scroll to swap,
-   click to open panel, hamburger dropdown menu. ES5 style for broad support. */
+/* work.js — split view controller: left image shows placeholder/first project,
+   hover/focus/scroll swap the image; click opens panel; hamburger dropdown menu. */
 
 (function () {
   /* --- DOM refs --- */
@@ -14,13 +14,13 @@
 
   var leftStack = document.getElementById('projectsLeft') || document.querySelector('.projects-left-inside');
 
-  // Works with both: '.projects-right .row a[data-slug]' or any '.row a[data-slug]'
+  // Right-side list
   var links = document.querySelectorAll('.row a[data-slug]');
   var rows  = document.querySelectorAll('.row');
 
   /* --- settings --- */
-  var PLACEHOLDER_SRC = 'assets/portfolio-cover.png'; // put your "holder" image here
-  var ENABLE_SCROLL_SYNC_AFTER_USER_SCROLL = true;    // image follows the row in view *after* a scroll starts
+  var PLACEHOLDER_SRC = ''; // e.g. 'assets/portfolio-cover.png'; leave '' to default to first project
+  var ENABLE_SCROLL_SYNC_AFTER_USER_SCROLL = true;    // image follows the row in view after you scroll
   var SCROLL_THRESHOLD = 0.6;                         // how much of a row must be visible to count
 
   /* --- helpers --- */
@@ -29,7 +29,7 @@
   /* --- Build the left image stack from PROJECTS --- */
   var imageBySlug = {};
 
-  // 0) Insert placeholder (if file exists)
+  // 0) Optional placeholder
   (function insertPlaceholder(){
     if (!leftStack || !PLACEHOLDER_SRC) return;
     var wrap = document.createElement('div');
@@ -48,7 +48,7 @@
     for (var i=0;i<links.length;i++){
       var a = links[i];
       var slug = a.getAttribute('data-slug');
-      var p = (window.PROJECTS || {})[slug]; // read from projects.js
+      var p = (window.PROJECTS || {})[slug];
       if (!p || !p.hero || imageBySlug[slug]) continue;
 
       var wrap = document.createElement('div');
@@ -71,10 +71,9 @@
 
   /* --- show/hide layers --- */
   function setActiveImage(slug){
-    // prefer the requested slug; otherwise fall back to placeholder; otherwise first available
+    // prefer the requested slug; otherwise placeholder; otherwise first available
     var target = imageBySlug[slug] || imageBySlug.__placeholder;
     if (!target){
-      // final fallback: first key, if any
       for (var k in imageBySlug){ target = imageBySlug[k]; break; }
     }
     if (!target) return;
@@ -84,7 +83,7 @@
     }
   }
 
-  /* --- open/close project panel (reuses your existing structure) --- */
+  /* --- project panel open/close --- */
   function openProject(slug, push){
     if (typeof push === 'undefined') push = true;
     var p = (window.PROJECTS || {})[slug];
@@ -127,7 +126,7 @@
     panel.setAttribute('aria-hidden','false');
     document.body.style.overflow = 'hidden';
     if (push) history.pushState({slug:slug}, '', '#' + slug);
-    backBtn && backBtn.focus();
+    if (backBtn) backBtn.focus();
   }
 
   function closePanel(pop){
@@ -189,8 +188,12 @@
     for (var r=0;r<rows.length;r++){ io.observe(rows[r]); }
   }
 
-  /* --- initial state: keep the placeholder visible on open --- */
-  setActiveImage(null);
+  /* --- initial state --- */
+  if (imageBySlug.__placeholder) {
+    setActiveImage(null); // show placeholder if provided
+  } else if (links.length) {
+    setActiveImage(links[0].getAttribute('data-slug')); // fall back to first project
+  }
 
   /* --- deep link support: /work.html#project3 --- */
   var initial = (location.hash||'').replace('#','');
@@ -218,15 +221,32 @@
   function toggleMenu(force){
     var isOpen = (typeof force !== 'undefined') ? force : (menuBtn.getAttribute('aria-expanded') !== 'true');
     menuBtn.setAttribute('aria-expanded', String(isOpen));
-    menuDropdown.classList.toggle('open', isOpen);
-    menuDropdown.setAttribute('aria-hidden', String(!isOpen));
+    if (menuDropdown){
+      menuDropdown.classList.toggle('open', isOpen);
+      menuDropdown.setAttribute('aria-hidden', String(!isOpen));
+    }
   }
-  if (menuBtn) menuBtn.addEventListener('click', function(){ toggleMenu(); });
 
+  if (menuBtn) {
+    // prevent immediate close when clicking the inner spans
+    menuBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      toggleMenu();
+    });
+  }
+
+  // close when clicking outside (but not when clicking inside the button or dropdown)
   document.addEventListener('click', function(e){
     if (!menuBtn) return;
     var isOpen = menuBtn.getAttribute('aria-expanded') === 'true';
-    if(!isOpen) return;
-    if(!menuDropdown.contains(e.target) && e.target !== menuBtn) toggleMenu(false);
+    if (!isOpen) return;
+    var clickInsideMenu = menuDropdown && menuDropdown.contains(e.target);
+    var clickOnButton   = menuBtn.contains(e.target);
+    if (!clickInsideMenu && !clickOnButton) toggleMenu(false);
   });
+
+  if (menuDropdown){
+    // clicks in dropdown shouldn't bubble to document
+    menuDropdown.addEventListener('click', function(e){ e.stopPropagation(); });
+  }
 })();
