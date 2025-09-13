@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Work — Summer Cooke</title>
+
+  <!-- Google Font to match your vibe -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lacquer&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/work.css">
+</head>
+<body>
+  <!-- Top bar -->
+  <header class="topbar" aria-label="Site">
+    <div class="brand">summer cooke</div>
+
+    <!-- Two-line "cursor" menu button -->
+    <button class="hambtn" id="menuBtn" aria-expanded="false" aria-controls="menuDropdown" aria-label="Open menu">
+      <span class="line"></span>
+      <span class="line"></span>
+    </button>
+
+    <!-- Dropdown menu -->
+    <nav class="dropdown" id="menuDropdown" aria-hidden="true" aria-label="Main">
+      <a href="/">Home</a>
+      <a href="/profile">Profile</a>
+      <a href="/contact">Contact</a>
+    </nav>
+  </header>
+
+  <!-- Work list -->
+  <main class="work" aria-label="Work">
+    <div class="row">
+      <a href="#oblique" data-slug="oblique">OBLIQUE</a>
+      <div class="tags">Immersive Media • Spatial</div>
+    </div>
+    <div class="row">
+      <a href="#studio-klein" data-slug="studio-klein">STUDIO KLEIN</a>
+      <div class="tags">Brand • Web</div>
+    </div>
+    <div class="row">
+      <a href="#fieldspark" data-slug="fieldspark">FIELDSPARK</a>
+      <div class="tags">Product • Systems</div>
+    </div>
+    <div class="row">
+      <a href="#liminal" data-slug="liminal">LIMINAL</a>
+      <div class="tags">Installation • Audio</div>
+    </div>
+    <div class="row">
+      <a href="#aura-code" data-slug="aura-code">AURA CODE</a>
+      <div class="tags">Research • ML</div>
+    </div>
+    <div class="row">
+      <a href="#glassbank" data-slug="glassbank">GLASSBANK</a>
+      <div class="tags">Fintech • UX</div>
+    </div>
+  </main>
+
+  <!-- Full-screen project panel -->
+  <section class="panel" id="panel" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="panelTop">
+      <button class="backBtn" id="backBtn" type="button" aria-label="Back to work">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.7 5.3a1 1 0 0 1 0 1.4L10.41 11H20a1 1 0 1 1 0 2h-9.59l4.3 4.3a1 1 0 1 1-1.42 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.42 0z"/></svg>
+        Work
+      </button>
+      <div class="panelTitle" id="panelTitle">—</div>
+    </div>
+
+    <div class="panelBody" id="panelBody">
+      <div class="hero" id="hero"></div>
+      <div class="content" id="content"></div>
+    </div>
+  </section>
+
+  <!-- Hover preview that follows the mouse -->
+  <div id="cursorPreview" class="cursorPreview" aria-hidden="true">
+    <img alt="" id="cursorPreviewImg">
+  </div>
+
+  <!-- Scripts (order matters: projects before work) -->
+	<script src="projects.js"></script>
+	<script src="work.js" defer></script>
+</body>
+</html>
