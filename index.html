@@ -110,54 +110,15 @@
       letter-spacing:.12em;
       text-transform:uppercase;
       line-height:1.2;
-
-      /* typewriter base */
-      position: relative;
-      overflow: hidden;
-      white-space: nowrap;
-      border-right: 2px solid transparent;
-      padding-right: 0.2ch; /* small breathing room at end */
     }
 
-    /* Hover/focus states (keep subtle lift; no underline animation) */
+    /* Hover/focus states (keep subtle lift) */
     .edgeNav__row:hover .edgeNav__link,
     .edgeNav__link:focus-visible{ color:#fff; transform:translateY(-1px); outline:none; }
     .edgeNav__row:hover .edgeNav__desc{ color:#fff; }
 
     @media (max-width:640px){
       .edgeNav__row{ gap:.6rem; }
-    }
-
-    /* ================== Typewriter (descriptors only) ================== */
-    .edgeNav__desc.typewriter{
-      width: 0ch;
-      border-right-color: rgba(255,255,255,.75);
-      /* slightly slower and smoother */
-      animation:
-        tw-reveal 1.4s steps(16) .1s both,
-        tw-caret-hide 1.4s linear .1s both; /* caret disappears at the end */
-    }
-
-    /* Reveal the text, with a small width buffer to prevent clipping */
-    @keyframes tw-reveal{
-      from{ width: 0ch; }
-      to  { width: calc(var(--tw-ch, 14ch) + 0.6ch); } /* buffer avoids 1-char cutoff */
-    }
-
-    /* Keep the caret visible while typing, then hide it at the end */
-    @keyframes tw-caret-hide{
-      0%   { border-right-color: rgba(255,255,255,.75); }
-      99%  { border-right-color: rgba(255,255,255,.75); }
-      100% { border-right-color: transparent; }
-    }
-
-    /* Reduced motion: no typing effect, no caret */
-    @media (prefers-reduced-motion: reduce){
-      .edgeNav__desc.typewriter{
-        animation: none !important;
-        width: auto !important;
-        border-right: none !important;
-      }
     }
   </style>
 </head>
@@ -168,23 +129,23 @@
     <ul class="edgeNav__list">
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/time-capsule">time capsule</a>
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 9ch;">Portfolio</span>
+        <span class="edgeNav__desc">Portfolio</span>
       </li>
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/lab">The lab</a>
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 16ch;">Current Projects</span>
+        <span class="edgeNav__desc">Current Projects</span>
       </li>
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/profile">profile</a>
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 8ch;">Who I Am</span>
+        <span class="edgeNav__desc">Who I Am</span>
       </li>
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/noodling">noodling</a>
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 11ch;">Study Notes</span>
+        <span class="edgeNav__desc">Study Notes</span>
       </li>
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/contact">contact</a>
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 9ch;">Say Hello</span>
+        <span class="edgeNav__desc">Say Hello</span>
       </li>
     </ul>
   </aside>
