@@ -12,50 +12,61 @@
   <link rel="stylesheet" href="css/work.css">
 </head>
 <body>
+  <!-- Top bar -->
   <header class="topbar" aria-label="Site">
     <div class="brand">summer cooke</div>
 
+    <!-- Two-line menu button -->
     <button class="hambtn" id="menuBtn" aria-expanded="false" aria-controls="menuDropdown" aria-label="Open menu">
-      <!-- ADDED classes -->
       <span class="line top"></span>
       <span class="line bottom"></span>
     </button>
 
+    <!-- Dropdown -->
     <nav class="dropdown" id="menuDropdown" aria-hidden="true" aria-label="Main">
-      <!-- use relative links if you’re on GH Pages -->
       <a href="./index.html">Home</a>
       <a href="./index.html#profile">Profile</a>
       <a href="./index.html#contact">Contact</a>
     </nav>
   </header>
 
-  <main class="work" aria-label="Work">
-    <div class="row">
-      <a href="#project1" data-slug="project1">project1</a>
-      <div class="tags">X • X</div>
-    </div>
-    <div class="row">
-      <a href="#project2" data-slug="project2">project2</a>
-      <div class="tags">X • X</div>
-    </div>
-    <div class="row">
-      <a href="#project3" data-slug="project3">project3</a>
-      <div class="tags">X • X</div>
-    </div>
-    <div class="row">
-      <a href="#project4" data-slug="project4">project4</a>
-      <div class="tags">X • X</div>
-    </div>
-    <div class="row">
-      <a href="#project5" data-slug="project5">project5</a>
-      <div class="tags">X • X</div>
-    </div>
-    <div class="row">
-      <a href="#project6" data-slug="project6">project6</a>
-      <div class="tags">X • X</div>
-    </div>
+  <!-- Split layout: images (left) + list (right) -->
+  <main class="projects" aria-label="Work">
+    <aside class="projects-left">
+      <div class="projects-left-inside" id="projectsLeft" aria-hidden="true"></div>
+    </aside>
+
+    <section class="projects-right">
+      <div class="work" aria-label="Projects list">
+        <div class="row">
+          <a href="#project1" data-slug="project1">Project 1</a>
+          <div class="tags">TBD</div>
+        </div>
+        <div class="row">
+          <a href="#project2" data-slug="project2">Project 2</a>
+          <div class="tags">TBD</div>
+        </div>
+        <div class="row">
+          <a href="#project3" data-slug="project3">Project 3</a>
+          <div class="tags">TBD</div>
+        </div>
+        <div class="row">
+          <a href="#project4" data-slug="project4">Project 4</a>
+          <div class="tags">TBD</div>
+        </div>
+        <div class="row">
+          <a href="#project5" data-slug="project5">Project 5</a>
+          <div class="tags">TBD</div>
+        </div>
+        <div class="row">
+          <a href="#project6" data-slug="project6">Project 6</a>
+          <div class="tags">TBD</div>
+        </div>
+      </div>
+    </section>
   </main>
 
+  <!-- Full-screen project panel (unchanged) -->
   <section class="panel" id="panel" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="panelTop">
       <button class="backBtn" id="backBtn" type="button" aria-label="Back to work">
@@ -71,11 +82,7 @@
     </div>
   </section>
 
-  <div id="cursorPreview" class="cursorPreview" aria-hidden="true">
-    <img alt="" id="cursorPreviewImg">
-  </div>
-
-  <!-- order matters; both deferred keeps order and avoids blocking -->
+  <!-- Scripts (order matters) -->
   <script src="projects.js" defer></script>
   <script src="work.js" defer></script>
 </body>
