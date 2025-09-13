@@ -168,4 +168,55 @@ body{
   .cursorPreview{ transition:none }
 }
 
+/* === Split layout: images left + list right === */
+.projects{
+  width:92vw; max-width:1200px;
+  margin:20px auto 24px;
+  display:grid;
+  grid-template-columns: minmax(360px, 1fr) 1.1fr;
+  gap: clamp(16px, 3vw, 40px);
+  align-items:start;
+}
+
+.projects-left{
+  position: sticky;
+  top: clamp(12px, 2.5vw, 24px);
+  height: calc(100svh - clamp(12px, 2.5vw, 24px)*2);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius: 16px;
+  background:#0b0b0b;
+  overflow:hidden;
+}
+.projects-left-inside{ position:relative; width:100%; height:100%; }
+
+.projects-image{
+  position:absolute; inset:0;
+  opacity:0; transform: scale(1.02);
+  transition: opacity .28s ease, transform .6s cubic-bezier(.22,.61,.36,1);
+}
+.projects-image img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; display:block;
+}
+.projects-image.active{ opacity:1; transform: scale(1); }
+
+.projects-right .work{
+  width:auto; max-width:none;
+  margin:0; border-top:0;     /* override single-column defaults */
+}
+
+/* Tweak list sizes for split view */
+.projects-right .row{ padding: clamp(18px, 2.5vw, 28px) 0; }
+.projects-right .row a{
+  font-size: clamp(28px, 5vw, 64px);
+}
+
+/* Mobile: stack image above list */
+@media (max-width: 900px){
+  .projects{ grid-template-columns: 1fr; }
+  .projects-left{
+    position:relative; top:auto; height:56vh; margin-bottom:12px;
+  }
+}
+
 /* CSS Document */
