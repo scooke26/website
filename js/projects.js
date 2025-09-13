@@ -5,7 +5,7 @@ window.PROJECTS = {
   "project1": {
     title: "Project 1",
     tags: ["TBD"],
-    hero: "assets/PROJECT1.png",
+    hero: "assets/project1.png",
     themeHero: "#101010",
     lead: "TBD",
     meta: { Role: "TBD", Year: "TBD", Client: "TBD" },
@@ -14,7 +14,7 @@ window.PROJECTS = {
   "project2": {
     title: "Project 2",
     tags: ["TBD"],
-    hero: "assets/PROJECT2.png",
+    hero: "assets/project2.png",
     themeHero: "#101010",
     lead: "TBD",
     meta: { Role: "TBD", Year: "TBD", Client: "TBD" },
@@ -23,7 +23,7 @@ window.PROJECTS = {
   "project3": {
     title: "Project 3",
     tags: ["TBD"],
-    hero: "assets/PROJECT3.png",
+    hero: "assets/project3.png",
     themeHero: "#101010",
     lead: "TBD",
     meta: { Role: "TBD", Year: "TBD", Client: "TBD" },
@@ -32,7 +32,7 @@ window.PROJECTS = {
   "project4": {
     title: "Project 4",
     tags: ["TBD"],
-    hero: "assets/PROJECT4.png",
+    hero: "assets/project4.png",
     themeHero: "#101010",
     lead: "TBD",
     meta: { Role: "TBD", Year: "TBD", Client: "TBD" },
@@ -41,7 +41,7 @@ window.PROJECTS = {
   "project5": {
     title: "Project 5",
     tags: ["TBD"],
-    hero: "assets/PROJECT5.png",
+    hero: "assets/project5.png",
     themeHero: "#101010",
     lead: "TBD",
     meta: { Role: "TBD", Year: "TBD", Client: "TBD" },
@@ -50,7 +50,7 @@ window.PROJECTS = {
   "project6": {
     title: "Project 6",
     tags: ["TBD"],
-    hero: "assets/PROJECT6.png",
+    hero: "assets/project6.png",
     themeHero: "#101010",
     lead: "TBD",
     meta: { Role: "TBD", Year: "TBD", Client: "TBD" },
