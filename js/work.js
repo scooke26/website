@@ -1,4 +1,4 @@
-/* work.js - ES5 style */
+/* work.js — split layout: left image changes on hover/scroll; click opens panel */
 (function () {
   var panel = document.getElementById('panel');
   var hero = document.getElementById('hero');
@@ -9,31 +9,63 @@
   var menuBtn = document.getElementById('menuBtn');
   var menuDropdown = document.getElementById('menuDropdown');
 
-  var cursorPreview = document.getElementById('cursorPreview');
-  var cursorPreviewImg = document.getElementById('cursorPreviewImg');
+  var leftStack = document.getElementById('projectsLeft');
+  var rows = document.querySelectorAll('.projects-right .row');
+  var links = document.querySelectorAll('.projects-right .row a[data-slug]');
 
-  /* helpers */
-  var canHover = window.matchMedia && window.matchMedia('(any-hover: hover)').matches;
+  /* --- helpers --- */
   function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
   function preload(src){ if(src){ var img=new Image(); img.src=src; } }
 
-  /* panel open/close */
+  /* --- build left image stack from PROJECTS --- */
+  var imageBySlug = {};
+  (function buildLeft(){
+    for (var i=0;i<links.length;i++){
+      var a = links[i];
+      var slug = a.getAttribute('data-slug');
+      var p = (window.PROJECTS||{})[slug];
+      if (!p || !p.hero || imageBySlug[slug]) continue;
+
+      var wrap = document.createElement('div');
+      wrap.className = 'projects-image';
+      wrap.dataset.slug = slug;
+
+      var img = document.createElement('img');
+      img.src = p.hero;
+      img.alt = (p.title || slug) + ' cover';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+
+      wrap.appendChild(img);
+      leftStack.appendChild(wrap);
+      imageBySlug[slug] = wrap;
+
+      preload(p.hero);
+    }
+  })();
+
+  function setActiveImage(slug){
+    if (!slug || !imageBySlug[slug]) return;
+    for (var key in imageBySlug){
+      imageBySlug[key].classList.toggle('active', key === slug);
+    }
+  }
+
+  /* --- project panel open/close (same structure as your original) --- */
   function openProject(slug, push){
     if (typeof push === 'undefined') push = true;
     var p = (window.PROJECTS || {})[slug];
     if (!p) return;
 
-    panelTitle.textContent = p.title;
+    panelTitle.textContent = p.title || slug;
     panel.style.setProperty('--theme-hero', p.themeHero || '#111');
 
-    hero.innerHTML = p.hero ? '<img src="' + p.hero + '" alt="' + p.title + ' hero">' : '';
+    hero.innerHTML = p.hero ? '<img src="' + p.hero + '" alt="' + (p.title||slug) + ' hero">' : '';
 
     var metaChips = '';
     if (p.meta){
-      var pairs = Object.keys(p.meta);
-      for (var i=0;i<pairs.length;i++){
-        var k = pairs[i]; var v = p.meta[k];
-        metaChips += '<span class="chip">' + k + ': ' + v + '</span>';
+      for (var k in p.meta){
+        metaChips += '<span class="chip">' + k + ': ' + p.meta[k] + '</span>';
       }
     }
 
@@ -52,7 +84,7 @@
     }
 
     content.innerHTML =
-      '<h1 class="h1">' + p.title + '</h1>' +
+      '<h1 class="h1">' + (p.title||slug) + '</h1>' +
       '<p class="lead">' + (p.lead||'') + '</p>' +
       tagLine +
       '<div class="meta">' + metaChips + '</div>' +
@@ -73,22 +105,59 @@
     if (pop && location.hash) history.back();
   }
 
-  /* bind rows */
-  var links = document.querySelectorAll('.row a[data-slug]');
+  /* --- interactions on the right list --- */
+  var hovering = false;
+
   for (var i=0;i<links.length;i++){
     (function(a){
+      var slug = a.getAttribute('data-slug');
+
+      // Click opens panel
       a.addEventListener('click', function(e){
         e.preventDefault();
-        openProject(a.getAttribute('data-slug'), true);
+        openProject(slug, true);
       });
+
+      // Hover/focus swap image
       a.addEventListener('mouseenter', function(){
-        var p = (window.PROJECTS||{})[a.getAttribute('data-slug')];
-        if (p && p.hero) preload(p.hero);
+        hovering = true;
+        setActiveImage(slug);
+      });
+      a.addEventListener('mouseleave', function(){
+        hovering = false;
+      });
+      a.addEventListener('focus', function(){
+        setActiveImage(slug);
       });
     })(links[i]);
   }
 
-  /* close + esc */
+  // Scroll-based swap when not hovering
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      if (hovering) return;
+      for (var i=0;i<entries.length;i++){
+        var entry = entries[i];
+        if (entry.isIntersecting){
+          var row = entry.target;
+          var a = row.querySelector('a[data-slug]');
+          if (a) setActiveImage(a.getAttribute('data-slug'));
+        }
+      }
+    }, { root:null, threshold:0.6 });
+    for (var r=0;r<rows.length;r++){ io.observe(rows[r]); }
+  }
+
+  // Default image (first item) + deep link support
+  if (links.length){ setActiveImage(links[0].getAttribute('data-slug')); }
+
+  var initial = (location.hash||'').replace('#','');
+  if (initial && (window.PROJECTS||{})[initial]){
+    setActiveImage(initial);
+    setTimeout(function(){ openProject(initial, false); }, 40);
+  }
+
+  /* --- close + esc --- */
   backBtn.addEventListener('click', function(){ closePanel(false); });
   window.addEventListener('keydown', function(e){
     if (e.key === 'Escape'){
@@ -97,63 +166,14 @@
     }
   });
 
-  /* history */
+  // History
   window.addEventListener('popstate', function(){
     var slug = (location.hash||'').replace('#','');
     if (slug && (window.PROJECTS||{})[slug]) openProject(slug, false);
     else if (panel.classList.contains('open')) closePanel(false);
   });
 
-  /* deep link on load */
-  var initial = (location.hash||'').replace('#','');
-  if (initial && (window.PROJECTS||{})[initial]) setTimeout(function(){ openProject(initial, false); }, 40);
-
-  /* hover preview follow pointer */
-  var moveHandler = null;
-  function showPreviewFor(slug){
-    if(!canHover) return;
-    var p = (window.PROJECTS||{})[slug];
-    if(!(p && p.hero)) return;
-    cursorPreviewImg.src = p.hero;
-    cursorPreview.classList.add('show');
-    cursorPreview.setAttribute('aria-hidden','false');
-  }
-  function hidePreview(){
-    cursorPreview.classList.remove('show');
-    cursorPreview.setAttribute('aria-hidden','true');
-  }
-  function positionPreview(e){
-    var offset = 18;
-    var vpW = window.innerWidth, vpH = window.innerHeight;
-    var rect = cursorPreview.getBoundingClientRect();
-    var w = rect.width || 240, h = rect.height || 180;
-    var x = e.clientX + offset, y = e.clientY + offset;
-    x = clamp(x, w/2 + 6, vpW - w/2 - 6);
-    y = clamp(y, h/2 + 6, vpH - h/2 - 6);
-    cursorPreview.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(1)';
-  }
-
-  if (canHover){
-    for (var k=0;k<links.length;k++){
-      (function(a){
-        a.addEventListener('mouseenter', function(){
-          showPreviewFor(a.getAttribute('data-slug'));
-          moveHandler = positionPreview;
-          window.addEventListener('mousemove', moveHandler, { passive:true });
-        });
-        a.addEventListener('mouseleave', function(){
-          hidePreview();
-          if (moveHandler){ window.removeEventListener('mousemove', moveHandler); moveHandler = null; }
-        });
-        a.addEventListener('mousemove', positionPreview, { passive:true });
-      })(links[k]);
-    }
-    window.addEventListener('scroll', function(){
-      if (cursorPreview.classList.contains('show')) cursorPreview.classList.remove('show');
-    }, { passive:true });
-  }
-
-  /* menu */
+  /* --- menu --- */
   function toggleMenu(force){
     var isOpen = (typeof force !== 'undefined') ? force : (menuBtn.getAttribute('aria-expanded') !== 'true');
     menuBtn.setAttribute('aria-expanded', String(isOpen));
