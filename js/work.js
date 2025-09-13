@@ -20,7 +20,7 @@
 
   /* --- settings --- */
   // Show a real image immediately so you can see it working on load:
-  var PLACEHOLDER_SRC = 'assets/PROJECT1.png';   // ← ensure this file exists (case‑sensitive)
+  var PLACEHOLDER_SRC = 'assets/project1.png';   // ← ensure this file exists (case‑sensitive)
   var ENABLE_SCROLL_SYNC_AFTER_USER_SCROLL = true;
   var SCROLL_THRESHOLD = 0.6;
 
