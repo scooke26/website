@@ -20,21 +20,16 @@
       --bgImageOpacity:.35;
       --pad: clamp(12px, 2.5vw, 28px);
 
-      /* Font stacks */
-      --font-display: "Lacquer", sans-serif; /* Summer Cooke + left labels */
+      /* Fonts */
+      --font-display: "Lacquer", sans-serif; /* name + left labels */
       --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; /* right descriptions + base */
 
-      /* Corner nav sizing */
+      /* Corner nav sizing/colors */
       --label-size: clamp(1.05rem, 2.2vw, 1.45rem);
       --desc-size: clamp(.68rem, 1.1vw, .85rem);
       --rule-color: rgba(255,255,255,.45);
       --muted: rgba(255,255,255,.78);
       --muted-dim: rgba(255,255,255,.52);
-
-      /* Drawer sizing — 25% wider than before */
-      --drawer-max: 900px;    /* 720 * 1.25 */
-      --drawer-min: 525px;    /* 420 * 1.25 */
-      --drawer-w: clamp(var(--drawer-min), 62.5vw, var(--drawer-max)); /* 50vw -> 62.5vw */
     }
 
     html, body { height:100% }
@@ -45,21 +40,19 @@
       font-weight:400;
     }
 
-    /* Full-screen background image (no animation) */
+    /* Full-screen background */
     body::before{
       content:""; position:fixed; inset:0;
       background:url("assets/welcome99.png") center/cover no-repeat;
       opacity:var(--bgImageOpacity); pointer-events:none; z-index:-1;
     }
-
-    /* Soft bottom-left glow to reduce empty feel (static) */
     body::after{
       content:"";
       position:fixed; inset:0; pointer-events:none; z-index:-1;
       background: radial-gradient(520px circle at 8% 92%, rgba(0,0,0,.35), transparent 60%);
     }
 
-    /* Corner Navigation pinned bottom-left */
+    /* ===== Left/bottom corner navigation ===== */
     .edgeNav{
       position:fixed;
       left:max(var(--pad), env(safe-area-inset-left));
@@ -67,124 +60,122 @@
       width:min(420px, 88vw);
       z-index:2; user-select:none;
     }
-
-    /* Name (Lacquer regular, larger, natural case) */
     .edgeNav__brand{
       margin:0 0 .35rem 0;
       font-family:var(--font-display);
-      font-style: normal;
       font-weight: 400;
       font-size: clamp(2rem, 6vw, 3.6rem);
       line-height:1.08;
       letter-spacing:.06em;
       color:var(--muted);
-      text-transform:none;
     }
-
     .edgeNav__list{
       margin:0; padding:0; list-style:none;
       border-top:1px solid var(--rule-color);
     }
-
-    /* Two-column rows: left label (Lacquer), right descriptor (system) */
     .edgeNav__row{
       display:grid; grid-template-columns: 1fr auto;
       align-items:baseline; gap:.9rem;
       padding:.6rem 0;
       border-bottom:1px solid var(--rule-color);
     }
-
-    /* LEFT labels = Lacquer regular */
     .edgeNav__link{
       text-decoration:none; color:var(--muted);
       font-family:var(--font-display);
-      font-style: normal;
       font-weight: 400;
       font-size:var(--label-size);
       line-height:1.08;
       transition: color .12s ease, transform .12s ease;
     }
-
-    /* RIGHT descriptions = system stack (regular, smaller, uppercase) */
     .edgeNav__desc{
       justify-self:end; text-align:right;
-      font-family:var(--font-ui);
-      font-weight:400;
-      font-size:var(--desc-size);
-      color:var(--muted-dim);
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      line-height:1.2;
-      cursor: pointer; /* make it feel clickable */
+      font-weight:400; font-size:var(--desc-size);
+      color:var(--muted-dim); letter-spacing:.12em; text-transform:uppercase; line-height:1.2;
+      cursor:pointer;
     }
-
-    /* Hover/focus states (keep subtle lift) */
     .edgeNav__row:hover .edgeNav__link,
     .edgeNav__link:focus-visible{ color:#fff; transform:translateY(-1px); outline:none; }
     .edgeNav__row:hover .edgeNav__desc{ color:#fff; }
 
-    @media (max-width:640px){
-      .edgeNav__row{ gap:.6rem; }
-    }
-
-    /* ================= Drawer (slides in from the right) ================= */
+    /* ===== Full-screen drawer with its own top nav ===== */
     .scrim{
       position: fixed; inset: 0;
       background: rgba(0,0,0,.45);
       backdrop-filter: blur(2px);
       z-index: 8;
-      opacity: 0;
-      pointer-events: none;
+      opacity: 0; pointer-events: none;
       transition: opacity .22s ease;
     }
-    .scrim.show{
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .scrim.show{ opacity: 1; pointer-events: auto; }
 
     .drawer{
-      position: fixed;
-      top: 0; right: 0; bottom: 0;
-      width: var(--drawer-w);
-      max-width: 100%;
+      position: fixed; inset: 0 0 0 auto;   /* full height, dock to right */
+      width: 100vw;                          /* full-screen */
       z-index: 9;
-      background: rgba(12,12,12,.92);
+      background: rgba(10,10,10,.96);
       border-left: 1px solid var(--rule-color);
       box-shadow: -24px 0 60px rgba(0,0,0,.6);
-      transform: translateX(100%);
-      transition: transform .34s cubic-bezier(.22,.61,.36,1);
+      transform: translateX(100%);           /* slide from right */
+      transition: transform .38s cubic-bezier(.22,.61,.36,1);
       display: grid;
-      grid-template-rows: auto 1fr;
+      grid-template-rows: auto 1fr;          /* topbar + content */
     }
     .drawer.open{ transform: translateX(0); }
 
-    .drawer__header{
-      display:flex; align-items:center; justify-content:space-between;
-      padding: 16px 20px;
+    /* Top bar (brand + tabs + close) */
+    .drawer__topbar{
+      position: sticky; top: 0; z-index: 2;
+      display:flex; align-items:center; gap: 16px;
+      justify-content: space-between;
+      padding: 12px var(--pad);
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(6px);
       border-bottom: 1px solid var(--rule-color);
     }
-    .drawer__title{
-      margin:0;
+    .drawer__brand{
       font-family: var(--font-display);
-      font-weight: 400;
-      font-size: clamp(1.4rem, 2.6vw, 2rem);
-      letter-spacing:.04em;
+      font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+      letter-spacing:.05em;
       color:#fff;
+      white-space: nowrap;
+    }
+    .drawer__tabs{
+      display:flex; align-items:center; gap: 10px;
+      flex: 1 1 auto; justify-content: center; flex-wrap: wrap;
+      min-width: 0;
+    }
+    .drawer__tab{
+      appearance:none; border:1px solid transparent;
+      background: transparent; color: var(--muted);
+      text-transform: uppercase; letter-spacing:.12em;
+      font-size: .8rem; padding: 8px 10px; border-radius: 10px;
+      cursor: pointer; white-space: nowrap;
+    }
+    .drawer__tab:hover{ color:#fff; border-color: var(--rule-color); }
+    .drawer__tab[aria-current="true"]{
+      color:#fff; background: rgba(255,255,255,.06); border-color: var(--rule-color);
     }
     .drawer__close{
       appearance:none; border:1px solid var(--rule-color);
       background: transparent; color:#fff;
       border-radius: 10px; padding: 8px 12px;
-      cursor:pointer; font-size:.9rem;
+      cursor:pointer; font-size:.9rem; white-space: nowrap;
     }
+
+    /* Drawer content area */
     .drawer__body{
-      padding: 20px;
+      padding: clamp(16px, 3.6vw, 40px);
       overflow: auto;
-      display: grid; gap: 12px;
+      display: grid; gap: 14px;
+      max-width: 1100px;
+      margin-inline: auto;
     }
-    .drawer__body p{
-      margin:0; line-height:1.6; color: rgba(255,255,255,.92);
+    .drawer__body h2{
+      margin:0; font-family:var(--font-display);
+      font-weight:400; letter-spacing:.04em;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
     }
+    .drawer__body p{ margin:0; line-height:1.65; color: rgba(255,255,255,.92); }
   </style>
 </head>
 <body>
@@ -215,41 +206,51 @@
     </ul>
   </aside>
 
-  <!-- Drawer + scrim (single reusable drawer) -->
+  <!-- Full-screen drawer + scrim -->
   <div class="scrim" id="drawerScrim" hidden></div>
-  <aside class="drawer" id="drawer" aria-labelledby="drawerTitle" role="dialog" aria-modal="true" hidden>
-    <header class="drawer__header">
-      <h2 class="drawer__title" id="drawerTitle">Title</h2>
-      <button class="drawer__close" id="drawerClose" aria-label="Close panel">Close ✕</button>
-    </header>
+  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" hidden>
+    <div class="drawer__topbar">
+      <div class="drawer__brand">summer cooke</div>
+
+      <nav class="drawer__tabs" aria-label="Panel navigation">
+        <button class="drawer__tab" data-panel="time-capsule">Time Capsule</button>
+        <button class="drawer__tab" data-panel="lab">The Lab</button>
+        <button class="drawer__tab" data-panel="profile">Profile</button>
+        <button class="drawer__tab" data-panel="noodling">Noodling</button>
+        <button class="drawer__tab" data-panel="contact">Contact</button>
+      </nav>
+
+      <button class="drawer__close" id="drawerClose" aria-label="Close">Close ✕</button>
+    </div>
+
     <div class="drawer__body" id="drawerBody">
       <!-- content injected by JS -->
     </div>
   </aside>
 
   <script>
-    // Content for each panel (placeholder copy for now)
+    // Placeholder content per panel
     const PANEL_CONTENT = {
       'time-capsule': {
         title: 'time capsule',
         html: `
-          <p><strong>Selected Work</strong> — slides, prototypes, artifacts.</p>
-          <p>Coming soon: card grid with filters (topic, year, medium).</p>
+          <p><strong>Selected Work</strong> — XX.</p>
+          <p>Coming soon: TBD.</p>
           <p><a href="#" style="color:#fff;text-decoration:underline;">Open full portfolio</a></p>
         `
       },
       'lab': {
         title: 'the lab',
         html: `
-          <p>TBD.</p>
-          <p>Idea backlog, quick GIFs/screenshots, and links to sandboxes.</p>
+          <p>TBD</p>
+          <p>XX.</p>
         `
       },
       'profile': {
-        title: 'Profile',
+        title: 'profile',
         html: `
-          <p><strong>Summer Cooke</strong> — TBD.</p>
-          <p>INFO HERE TBD.</p>
+          <p><strong>Summer Cooke</strong> — XX • XXX • XX</p>
+          <p>TBD.</p>
           <p><a href="#" style="color:#fff;text-decoration:underline;">View CV</a> — <a href="#" style="color:#fff;text-decoration:underline;">LinkedIn</a></p>
         `
       },
@@ -275,25 +276,26 @@
     const drawer = document.getElementById('drawer');
     const scrim = document.getElementById('drawerScrim');
     const closeBtn = document.getElementById('drawerClose');
-    const drawerTitle = document.getElementById('drawerTitle');
     const drawerBody = document.getElementById('drawerBody');
+    const tabs = document.querySelectorAll('.drawer__tab');
 
-    // Open/close helpers
-    const openDrawer = (panelKey) => {
-      const { title, html } = PANEL_CONTENT[panelKey] || { title: 'Info', html: '<p>Content coming soon.</p>' };
-      drawerTitle.textContent = title;
-      drawerBody.innerHTML = html;
-
+    // Helpers
+    function setDrawerContent(key){
+      const { title, html } = PANEL_CONTENT[key] || { title: 'Info', html: '<p>Content coming soon.</p>' };
+      drawerBody.innerHTML = `<h2>${title}</h2>${html}`;
+      tabs.forEach(btn => btn.setAttribute('aria-current', btn.dataset.panel === key ? 'true' : 'false'));
+      history.replaceState(null, '', `#${key}`); // optional: reflect in URL
+    }
+    function openDrawer(key){
+      setDrawerContent(key);
       drawer.hidden = false;
       scrim.hidden = false;
-      // force reflow so transition applies when toggling classes
-      void drawer.offsetWidth;
+      void drawer.offsetWidth; // reflow
       drawer.classList.add('open');
       scrim.classList.add('show');
       document.body.style.overflow = 'hidden';
-    };
-
-    const closeDrawer = () => {
+    }
+    function closeDrawer(){
       drawer.classList.remove('open');
       scrim.classList.remove('show');
       document.body.style.overflow = '';
@@ -303,24 +305,31 @@
         drawer.removeEventListener('transitionend', onEnd);
       };
       drawer.addEventListener('transitionend', onEnd);
-    };
+    }
 
-    // Delegate clicks from the whole nav: works for both link and small text
+    // Left/bottom nav → open drawer (works for big + small text)
     nav.addEventListener('click', (e) => {
       const el = e.target.closest('[data-panel]');
       if (!el) return;
-
-      const panel = el.getAttribute('data-panel');
-      if (!panel) return;
-
-      // prevent navigating away (since hrefs point to real pages)
-      e.preventDefault();
-      openDrawer(panel);
+      e.preventDefault(); // keep SPA behavior
+      openDrawer(el.dataset.panel);
     });
 
+    // Topbar tabs → swap content
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => setDrawerContent(btn.dataset.panel));
+    });
+
+    // Close actions
     closeBtn.addEventListener('click', closeDrawer);
     scrim.addEventListener('click', closeDrawer);
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+
+    // Optional: deep link support (e.g., /#profile opens drawer)
+    window.addEventListener('load', () => {
+      const key = location.hash?.slice(1);
+      if (PANEL_CONTENT[key]) openDrawer(key);
+    });
   </script>
 </body>
 </html>
