@@ -1,5 +1,8 @@
-/* work.js — split layout: left image changes on hover/scroll; click opens panel */
+/* work.js — split view controller: placeholder on left, hover/focus/scroll to swap,
+   click to open panel, hamburger dropdown menu. ES5 style for broad support. */
+
 (function () {
+  /* --- DOM refs --- */
   var panel = document.getElementById('panel');
   var hero = document.getElementById('hero');
   var content = document.getElementById('content');
@@ -9,28 +12,50 @@
   var menuBtn = document.getElementById('menuBtn');
   var menuDropdown = document.getElementById('menuDropdown');
 
-  var leftStack = document.getElementById('projectsLeft');
-  var rows = document.querySelectorAll('.projects-right .row');
-  var links = document.querySelectorAll('.projects-right .row a[data-slug]');
+  var leftStack = document.getElementById('projectsLeft') || document.querySelector('.projects-left-inside');
+
+  // Works with both: '.projects-right .row a[data-slug]' or any '.row a[data-slug]'
+  var links = document.querySelectorAll('.row a[data-slug]');
+  var rows  = document.querySelectorAll('.row');
+
+  /* --- settings --- */
+  var PLACEHOLDER_SRC = 'assets/portfolio-cover.png'; // put your "holder" image here
+  var ENABLE_SCROLL_SYNC_AFTER_USER_SCROLL = true;    // image follows the row in view *after* a scroll starts
+  var SCROLL_THRESHOLD = 0.6;                         // how much of a row must be visible to count
 
   /* --- helpers --- */
-  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
   function preload(src){ if(src){ var img=new Image(); img.src=src; } }
 
-  /* --- build left image stack from PROJECTS --- */
+  /* --- Build the left image stack from PROJECTS --- */
   var imageBySlug = {};
-  (function buildLeft(){
+
+  // 0) Insert placeholder (if file exists)
+  (function insertPlaceholder(){
+    if (!leftStack || !PLACEHOLDER_SRC) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'projects-image active placeholder';
+    var img = new Image();
+    img.src = PLACEHOLDER_SRC;
+    img.alt = 'Portfolio cover';
+    img.loading = 'eager';
+    wrap.appendChild(img);
+    leftStack.appendChild(wrap);
+    imageBySlug.__placeholder = wrap;
+  })();
+
+  // 1) Add one image layer per project in the list
+  (function buildFromProjects(){
     for (var i=0;i<links.length;i++){
       var a = links[i];
       var slug = a.getAttribute('data-slug');
-      var p = (window.PROJECTS||{})[slug];
+      var p = (window.PROJECTS || {})[slug]; // read from projects.js
       if (!p || !p.hero || imageBySlug[slug]) continue;
 
       var wrap = document.createElement('div');
       wrap.className = 'projects-image';
       wrap.dataset.slug = slug;
 
-      var img = document.createElement('img');
+      var img = new Image();
       img.src = p.hero;
       img.alt = (p.title || slug) + ' cover';
       img.loading = 'lazy';
@@ -44,14 +69,22 @@
     }
   })();
 
+  /* --- show/hide layers --- */
   function setActiveImage(slug){
-    if (!slug || !imageBySlug[slug]) return;
+    // prefer the requested slug; otherwise fall back to placeholder; otherwise first available
+    var target = imageBySlug[slug] || imageBySlug.__placeholder;
+    if (!target){
+      // final fallback: first key, if any
+      for (var k in imageBySlug){ target = imageBySlug[k]; break; }
+    }
+    if (!target) return;
+
     for (var key in imageBySlug){
-      imageBySlug[key].classList.toggle('active', key === slug);
+      imageBySlug[key].classList.toggle('active', imageBySlug[key] === target);
     }
   }
 
-  /* --- project panel open/close (same structure as your original) --- */
+  /* --- open/close project panel (reuses your existing structure) --- */
   function openProject(slug, push){
     if (typeof push === 'undefined') push = true;
     var p = (window.PROJECTS || {})[slug];
@@ -94,7 +127,7 @@
     panel.setAttribute('aria-hidden','false');
     document.body.style.overflow = 'hidden';
     if (push) history.pushState({slug:slug}, '', '#' + slug);
-    backBtn.focus();
+    backBtn && backBtn.focus();
   }
 
   function closePanel(pop){
@@ -118,7 +151,7 @@
         openProject(slug, true);
       });
 
-      // Hover/focus swap image
+      // Hover/focus swaps image
       a.addEventListener('mouseenter', function(){
         hovering = true;
         setActiveImage(slug);
@@ -132,25 +165,34 @@
     })(links[i]);
   }
 
-  // Scroll-based swap when not hovering
+  /* --- optional: scroll-driven swap (kicks in after user scrolls) --- */
+  var userScrolled = false;
+  if (ENABLE_SCROLL_SYNC_AFTER_USER_SCROLL){
+    window.addEventListener('scroll', function(){ userScrolled = true; }, { passive:true });
+  }
+
   if ('IntersectionObserver' in window){
     var io = new IntersectionObserver(function(entries){
+      // Only sync if user has scrolled and we are not hovering another row
+      if (ENABLE_SCROLL_SYNC_AFTER_USER_SCROLL && !userScrolled) return;
       if (hovering) return;
+
       for (var i=0;i<entries.length;i++){
         var entry = entries[i];
         if (entry.isIntersecting){
-          var row = entry.target;
-          var a = row.querySelector('a[data-slug]');
+          var a = entry.target.querySelector('a[data-slug]');
           if (a) setActiveImage(a.getAttribute('data-slug'));
         }
       }
-    }, { root:null, threshold:0.6 });
+    }, { root:null, threshold: SCROLL_THRESHOLD });
+
     for (var r=0;r<rows.length;r++){ io.observe(rows[r]); }
   }
 
-  // Default image (first item) + deep link support
-  if (links.length){ setActiveImage(links[0].getAttribute('data-slug')); }
+  /* --- initial state: keep the placeholder visible on open --- */
+  setActiveImage(null);
 
+  /* --- deep link support: /work.html#project3 --- */
   var initial = (location.hash||'').replace('#','');
   if (initial && (window.PROJECTS||{})[initial]){
     setActiveImage(initial);
@@ -158,31 +200,31 @@
   }
 
   /* --- close + esc --- */
-  backBtn.addEventListener('click', function(){ closePanel(false); });
+  if (backBtn) backBtn.addEventListener('click', function(){ closePanel(false); });
   window.addEventListener('keydown', function(e){
     if (e.key === 'Escape'){
       if (panel.classList.contains('open')) closePanel(false);
-      else if (menuBtn.getAttribute('aria-expanded') === 'true') toggleMenu(false);
+      else if (menuBtn && menuBtn.getAttribute('aria-expanded') === 'true') toggleMenu(false);
     }
   });
 
-  // History
   window.addEventListener('popstate', function(){
     var slug = (location.hash||'').replace('#','');
     if (slug && (window.PROJECTS||{})[slug]) openProject(slug, false);
     else if (panel.classList.contains('open')) closePanel(false);
   });
 
-  /* --- menu --- */
+  /* --- hamburger menu --- */
   function toggleMenu(force){
     var isOpen = (typeof force !== 'undefined') ? force : (menuBtn.getAttribute('aria-expanded') !== 'true');
     menuBtn.setAttribute('aria-expanded', String(isOpen));
     menuDropdown.classList.toggle('open', isOpen);
     menuDropdown.setAttribute('aria-hidden', String(!isOpen));
   }
-  menuBtn.addEventListener('click', function(){ toggleMenu(); });
+  if (menuBtn) menuBtn.addEventListener('click', function(){ toggleMenu(); });
 
   document.addEventListener('click', function(e){
+    if (!menuBtn) return;
     var isOpen = menuBtn.getAttribute('aria-expanded') === 'true';
     if(!isOpen) return;
     if(!menuDropdown.contains(e.target) && e.target !== menuBtn) toggleMenu(false);
