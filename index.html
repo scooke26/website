@@ -20,37 +20,39 @@
       --bgImageOpacity:.35;
       --pad: clamp(12px, 2.5vw, 28px);
 
-      /* Font stacks */
-      --font-display: "Lacquer", sans-serif;                     /* Summer Cooke + left labels */
-      --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; /* right descriptions + base */
+      /* Fonts */
+      --font-display: "Lacquer", sans-serif; /* name + left labels */
+      --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 
-      /* Corner nav sizing */
+      /* Nav sizing/colors */
       --label-size: clamp(1.05rem, 2.2vw, 1.45rem);
       --desc-size: clamp(.68rem, 1.1vw, .85rem);
       --rule-color: rgba(255,255,255,.45);
       --muted: rgba(255,255,255,.78);
       --muted-dim: rgba(255,255,255,.52);
 
+      /* Content layout */
       --section-max: 1100px;
-      --section-pad: clamp(20px, 6vw, 80px);
+      --section-pad-y: clamp(28px, 8vw, 96px);
+      --section-gap: clamp(12px, 2.6vw, 28px);
     }
 
-    html, body { height:100% }
-    html { scroll-behavior: smooth; } /* native smooth scrolling */
+    html, body { height: 100%; }
+    html { scroll-behavior: smooth; }
     body{
       margin:0; color:#fff; background:var(--bg);
       font-family:var(--font-ui);
       font-weight:400;
     }
 
-    /* Full-screen ambient background (static) */
+    /* Ambient background (static) */
     body::before{
       content:""; position:fixed; inset:0;
       background:url("assets/welcome99.png") center/cover no-repeat;
       opacity:var(--bgImageOpacity); pointer-events:none; z-index:-1;
     }
 
-    /* Soft bottom-left glow to reduce empty feel (static) */
+    /* Soft bottom-left glow */
     body::after{
       content:"";
       position:fixed; inset:0; pointer-events:none; z-index:-1;
@@ -66,11 +68,9 @@
       z-index:2; user-select:none;
     }
 
-    /* Name (Lacquer regular, larger, natural case) */
     .edgeNav__brand{
       margin:0 0 .35rem 0;
       font-family:var(--font-display);
-      font-style: normal;
       font-weight: 400;
       font-size: clamp(2rem, 6vw, 3.6rem);
       line-height:1.08;
@@ -84,7 +84,6 @@
       border-top:1px solid var(--rule-color);
     }
 
-    /* Two-column rows: left label (Lacquer), right descriptor (system) */
     .edgeNav__row{
       display:grid; grid-template-columns: 1fr auto;
       align-items:baseline; gap:.9rem;
@@ -92,18 +91,14 @@
       border-bottom:1px solid var(--rule-color);
     }
 
-    /* LEFT labels = Lacquer regular */
     .edgeNav__link{
       text-decoration:none; color:var(--muted);
       font-family:var(--font-display);
-      font-style: normal;
       font-weight: 400;
       font-size:var(--label-size);
       line-height:1.08;
       transition: color .12s ease, transform .12s ease;
     }
-
-    /* RIGHT descriptions = system stack (regular, smaller, uppercase) */
     .edgeNav__desc{
       justify-self:end; text-align:right;
       font-family:var(--font-ui);
@@ -115,7 +110,7 @@
       line-height:1.2;
     }
 
-    /* Hover + active states */
+    /* Hover + “active” state */
     .edgeNav__row:hover .edgeNav__link,
     .edgeNav__link:focus-visible{ color:#fff; transform:translateY(-1px); outline:none; }
     .edgeNav__row:hover .edgeNav__desc{ color:#fff; }
@@ -126,16 +121,14 @@
       .edgeNav__row{ gap:.6rem; }
     }
 
-    /* ============== Sections ============== */
+    /* ===== Long-page sections (natural height) ===== */
     main { display:block; }
 
     section {
-      min-height: 100vh;            /* full-viewport panels */
-      display: grid;
-      place-items: center;
-      padding: var(--section-pad);
+      display:block;
+      padding: var(--section-pad-y) var(--pad);
       box-sizing: border-box;
-      scroll-margin-top: 10vh;      /* buffer when using hash links */
+      scroll-margin-top: 12vh; /* buffer for hash targets */
     }
 
     .section__inner{
@@ -143,11 +136,10 @@
       max-width: var(--section-max);
       margin: 0 auto;
       display: grid;
-      gap: clamp(12px, 2.6vw, 28px);
+      gap: var(--section-gap);
     }
 
     .section__eyebrow{
-      font-family: var(--font-ui);
       text-transform: uppercase;
       letter-spacing: .18em;
       font-size: .8rem;
@@ -170,7 +162,6 @@
       max-width: 75ch;
     }
 
-    /* Optional subtle dividers between panels */
     .divider{
       height: 1px;
       width: 100%;
@@ -207,7 +198,7 @@
     </ul>
   </aside>
 
-  <!-- One-page sections stacked vertically -->
+  <!-- Long page content -->
   <main>
     <section id="time-capsule" aria-labelledby="time-capsule-title">
       <div class="section__inner">
@@ -265,41 +256,21 @@
   </main>
 
   <script>
-    // Smooth-scroll (extra control vs CSS) + update active link as you scroll
+    // Highlight the active nav link as you scroll (no panel behavior)
     const links = document.querySelectorAll('.edgeNav__link[href^="#"]');
     const sections = [...document.querySelectorAll('main section')];
-    const byId = id => document.getElementById(id);
 
-    // Click -> smooth scroll + set hash without jump
-    links.forEach(link => {
-      link.addEventListener('click', e => {
-        const targetId = link.getAttribute('href').slice(1);
-        const targetEl = byId(targetId);
-        if (!targetEl) return;
-        e.preventDefault();
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        history.pushState(null, '', '#' + targetId);
-      });
-    });
-
-    // Highlight active nav item
-    const opts = { root: null, rootMargin: '0px 0px -40% 0px', threshold: 0.4 };
     const io = new IntersectionObserver((entries) => {
       entries.forEach(({ isIntersecting, target }) => {
         if (!isIntersecting) return;
         const id = target.id;
-        links.forEach(a => a.setAttribute('aria-current', a.getAttribute('href') === '#' + id));
+        links.forEach(a => {
+          a.setAttribute('aria-current', a.getAttribute('href') === '#' + id ? 'true' : 'false');
+        });
       });
-    }, opts);
-    sections.forEach(sec => io.observe(sec));
+    }, { root: null, rootMargin: '-30% 0px -50% 0px', threshold: 0.01 });
 
-    // On load with hash, align to section smoothly (optional)
-    window.addEventListener('load', () => {
-      if (location.hash) {
-        const el = byId(location.hash.slice(1));
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
+    sections.forEach(sec => io.observe(sec));
   </script>
 </body>
 </html>
