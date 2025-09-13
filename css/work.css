@@ -37,8 +37,8 @@ body{
   position:absolute; width:18px; height:2px; background:#fff; left:50%;
   transform:translateX(-50%);
 }
-.hambtn .line.top{ top:6px }
-.hambtn .line.bottom{ bottom:6px }
+.hambtn .line.top{ top:6px }      /* expects .line.top in HTML */
+.hambtn .line.bottom{ bottom:6px }/* expects .line.bottom in HTML */
 
 /* ===== dropdown menu ===== */
 .dropdown{
@@ -93,13 +93,22 @@ body{
   border:1px solid rgba(255,255,255,.18);
   box-shadow: 0 10px 28px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.04);
   background:#0b0b0b;
+  will-change: transform, opacity; /* NEW: smoother pointer tracking */
 }
 .cursorPreview.show{ opacity:1; transform: translate(-50%, -50%) scale(1) }
 .cursorPreview img{
   width:100%; height:100%; object-fit:cover; display:block; filter:saturate(105%);
 }
-/* hide preview on touch */
-@media (hover:none), (pointer:coarse){ .cursorPreview{ display:none !important } }
+
+/* hide preview only when the device truly cannot hover */
+/* CHANGED */
+@media (any-hover: none){
+  .cursorPreview{ display:none !important }
+}
+
+/* ensure preview never overlays the open panel */
+/* NEW */
+.panel.open ~ .cursorPreview{ display:none !important }
 
 /* ===== project panel ===== */
 .panel{
