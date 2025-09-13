@@ -107,7 +107,7 @@
       font-weight:400;
       font-size:var(--desc-size);
       color:var(--muted-dim);
-      letter-spacing:.12em;
+      letter-spacing:.12em;      /* this adds width beyond ch count */
       text-transform:uppercase;
       line-height:1.2;
 
@@ -116,7 +116,7 @@
       overflow: hidden;
       white-space: nowrap;
       border-right: 2px solid transparent;
-      padding-right: 0.2ch; /* small breathing room at end */
+      padding-right: 0.4ch;      /* a bit more breathing room */
     }
 
     /* Hover/focus states (keep subtle lift; no underline animation) */
@@ -134,14 +134,14 @@
       border-right-color: rgba(255,255,255,.75);
       /* slightly slower and smoother */
       animation:
-        tw-reveal 1.4s steps(16) .1s both,
+        tw-reveal 1.4s steps(var(--tw-steps, 24)) .1s both,
         tw-caret-hide 1.4s linear .1s both; /* caret disappears at the end */
     }
 
-    /* Reveal the text, with a small width buffer to prevent clipping */
+    /* Reveal with a generous buffer to account for letter-spacing */
     @keyframes tw-reveal{
       from{ width: 0ch; }
-      to  { width: calc(var(--tw-ch, 14ch) + 0.6ch); } /* buffer avoids 1-char cutoff */
+      to  { width: calc(var(--tw-ch, 14ch) + 3ch); } /* <- bigger buffer prevents clipping */
     }
 
     /* Keep the caret visible while typing, then hide it at the end */
@@ -168,23 +168,28 @@
     <ul class="edgeNav__list">
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/time-capsule">time capsule</a>
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 9ch;">Portfolio</span>
+        <!-- 9 letters => keep 9ch; steps ~ 12-16 -->
+        <span class="edgeNav__desc typewriter" style="--tw-ch: 9ch; --tw-steps: 16;">Portfolio</span>
       </li>
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/lab">The lab</a>
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 16ch;">Current Projects</span>
+        <!-- 16 letters incl space -->
+        <span class="edgeNav__desc typewriter" style="--tw-ch: 16ch; --tw-steps: 22;">Current Projects</span>
       </li>
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/profile">profile</a>
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 8ch;">Who I Am</span>
+        <!-- 8 letters + 2 words => 8ch is fine; add buffer handled in CSS -->
+        <span class="edgeNav__desc typewriter" style="--tw-ch: 8ch; --tw-steps: 14;">Who I Am</span>
       </li>
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/noodling">noodling</a>
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 11ch;">Study Notes</span>
+        <!-- 11 letters incl space -->
+        <span class="edgeNav__desc typewriter" style="--tw-ch: 11ch; --tw-steps: 18;">Study Notes</span>
       </li>
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/contact">contact</a>
-        <span class="edgeNav__desc typewriter" style="--tw-ch: 9ch;">Say Hello</span>
+        <!-- 9 letters incl space -->
+        <span class="edgeNav__desc typewriter" style="--tw-ch: 9ch; --tw-steps: 14;">Say Hello</span>
       </li>
     </ul>
   </aside>
