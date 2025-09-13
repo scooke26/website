@@ -92,6 +92,7 @@
       font-weight:400; font-size:var(--desc-size);
       color:var(--muted-dim); letter-spacing:.12em; text-transform:uppercase; line-height:1.2;
       cursor:pointer;
+      text-decoration: none; /* NEW: keep the small link un-underlined */
     }
     .edgeNav__row:hover .edgeNav__link,
     .edgeNav__link:focus-visible{ color:#fff; transform:translateY(-1px); outline:none; }
@@ -185,7 +186,8 @@
     <ul class="edgeNav__list">
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/time-capsule" data-panel="time-capsule">time capsule</a>
-        <span class="edgeNav__desc" data-panel="time-capsule">Portfolio</span>
+        <!-- CHANGED: make the small label a real link to the portfolio page -->
+        <a class="edgeNav__desc" href="./work.html">Portfolio</a>
       </li>
       <li class="edgeNav__row">
         <a class="edgeNav__link" href="/lab" data-panel="lab">The lab</a>
@@ -236,7 +238,8 @@
         html: `
           <p><strong>Selected Work</strong> — XX.</p>
           <p>Coming soon: TBD.</p>
-          <p><a href="#" style="color:#fff;text-decoration:underline;">Open full portfolio</a></p>
+          <!-- CHANGED: CTA now links to the portfolio page -->
+          <p><a href="./work.html" style="color:#fff;text-decoration:underline;">Open full portfolio</a></p>
         `
       },
       'lab': {
@@ -310,8 +313,8 @@
     // Left/bottom nav → open drawer (works for big + small text)
     nav.addEventListener('click', (e) => {
       const el = e.target.closest('[data-panel]');
-      if (!el) return;
-      e.preventDefault(); // keep SPA behavior
+      if (!el) return;           // if it wasn't a [data-panel], let normal links (like ./work.html) navigate
+      e.preventDefault();        // keep SPA behavior
       openDrawer(el.dataset.panel);
     });
 
